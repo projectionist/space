@@ -1,5 +1,7 @@
 #include <cassert>
 #include <cstring>
+#include <iostream>
+#include <unistd.h>
 
 #include <wayland-client.h>
 
@@ -10,10 +12,12 @@
 #include <projection/configure_callback_listener.hpp>
 #include <projection/funcs.hpp>
 
+using namespace std;
+
 namespace projection {
 
-
   projection::projection():
+    running(true),
     display(),
     window(),
     registry_listener()
@@ -38,14 +42,6 @@ namespace projection {
     init_egl(&display);
     create_surface(&window);
     init_gl(&window);
-    //
-    // display.cursor_surface =
-    //   wl_compositor_create_surface(display.compositor);
-
-    // sigint.sa_handler = signal_int;
-    // sigemptyset(&sigint.sa_mask);
-    // sigint.sa_flags = SA_RESETHAND;
-    // sigaction(SIGINT, &sigint, NULL);
 
 
   }
@@ -55,9 +51,14 @@ namespace projection {
 
   void projection::run() {
     int ret = 0;
-    bool running = true;
-    while (running && ret != -1)
-  		ret = wl_display_dispatch(display.display);
+    while (running && ret != -1) {
+      ret = wl_display_dispatch(display.display);
+    }
+  }
+
+  void projection::stop() {
+    cerr << "STOP!" << endl;
+    running = false;
   }
 
   void projection::registry_handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t)

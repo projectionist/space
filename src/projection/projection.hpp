@@ -7,6 +7,7 @@
 
 namespace projection {
   class projection {
+    bool running;
     struct display display;
     struct window window;
     struct wl_registry_listener registry_listener;
@@ -21,5 +22,6 @@ namespace projection {
     explicit projection();
     ~projection();
     void run();
+    void stop();
   };
 }
