@@ -1,8 +1,14 @@
 #include <cassert>
 #include <cstring>
+
 #include <wayland-client.h>
-#include <projection/projection.hpp>
+
 #include <GLES2/gl2.h>
+
+#include <projection/projection.hpp>
+#include <projection/shell_surface_listener.hpp>
+#include <projection/configure_callback_listener.hpp>
+#include <projection/funcs.hpp>
 
 namespace projection {
 
@@ -15,6 +21,9 @@ namespace projection {
     window.display = &display;
     display.window = &window;
 
+    window.window_size.width  = 250;
+    window.window_size.height = 250;
+
     registry_listener.global = registry_handle_global;
     registry_listener.global_remove = registry_handle_global_remove;
 
@@ -22,14 +31,13 @@ namespace projection {
     assert(display.display);
 
     display.registry = wl_display_get_registry(display.display);
-    wl_registry_add_listener(display.registry,
-           &registry_listener, &display);
+    wl_registry_add_listener(display.registry, &registry_listener, &display);
 
     wl_display_dispatch(display.display);
 
     init_egl(&display);
-    // create_surface(&window);
-    // init_gl(&window);
+    create_surface(&window);
+    init_gl(&window);
     //
     // display.cursor_surface =
     //   wl_compositor_create_surface(display.compositor);
@@ -38,9 +46,18 @@ namespace projection {
     // sigemptyset(&sigint.sa_mask);
     // sigint.sa_flags = SA_RESETHAND;
     // sigaction(SIGINT, &sigint, NULL);
+
+
   }
   projection::~projection () {
 
+  }
+
+  void projection::run() {
+    int ret = 0;
+    bool running = true;
+    while (running && ret != -1)
+  		ret = wl_display_dispatch(display.display);
   }
 
   void projection::registry_handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t)
@@ -98,5 +115,56 @@ namespace projection {
                 display->egl.conf,
                 EGL_NO_CONTEXT, context_attribs);
     assert(display->egl.ctx);
+  }
+
+  void projection::create_surface(struct window *window)
+  {
+    struct display *display = window->display;
+    EGLBoolean ret;
+
+    window->surface = wl_compositor_create_surface(display->compositor);
+    window->shell_surface = wl_shell_get_shell_surface(display->shell,
+                   window->surface);
+
+    wl_shell_surface_add_listener(window->shell_surface,
+                &shell_surface_listener, window);
+
+    window->native =
+      wl_egl_window_create(window->surface,
+               window->window_size.width,
+               window->window_size.height);
+    window->egl_surface =
+      eglCreateWindowSurface((EGLDisplay) display->egl.dpy, display->egl.conf, (EGLNativeWindowType) window->native, NULL);
+
+    wl_shell_surface_set_title(window->shell_surface, "simple-egl");
+
+    ret = eglMakeCurrent(window->display->egl.dpy, window->egl_surface,
+             window->egl_surface, window->display->egl.ctx);
+    assert(ret == EGL_TRUE);
+
+    toggle_fullscreen(window, 1);
+  }
+
+  void projection::toggle_fullscreen(struct window *window, int fullscreen)
+  {
+  	struct wl_callback *callback;
+
+  	window->fullscreen = fullscreen;
+  	window->configured = 0;
+
+  	if (fullscreen) {
+  		wl_shell_surface_set_fullscreen(window->shell_surface,
+  						WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT,
+  						0, NULL);
+  	} else {
+  		wl_shell_surface_set_toplevel(window->shell_surface);
+  		handle_configure(window, window->shell_surface, 0,
+  				 window->window_size.width,
+  				 window->window_size.height);
+  	}
+
+  	callback = wl_display_sync(window->display->display);
+  	wl_callback_add_listener(callback, &configure_callback_listener,
+  				 window);
   }
 }
