@@ -29,7 +29,7 @@ namespace projection {
     struct display *d = (struct display *)data;
 
     projection *p = (projection *)d->projection;
-    if (key == KEY_ESC && state) {
+    if ((key == KEY_ESC || key == KEY_Q) && state) {
       p->stop();
     }
   }

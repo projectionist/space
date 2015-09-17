@@ -307,7 +307,7 @@ create_surface(struct window *window)
 }
 
 static void
-destroy_surface(struct window *window)
+ace(struct window *window)
 {
 	wl_egl_window_destroy(window->native);
 

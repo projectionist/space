@@ -44,11 +44,20 @@ namespace projection {
     init_egl(&display);
     create_surface(&window);
     init_gl(&window);
-
-
   }
   projection::~projection () {
+    destroy_surface(&window);
+    fini_egl(&display);
 
+    if (display.shell)
+      wl_shell_destroy(display.shell);
+
+    if (display.compositor)
+      wl_compositor_destroy(display.compositor);
+
+    wl_registry_destroy(display.registry);
+    wl_display_flush(display.display);
+    wl_display_disconnect(display.display);
   }
 
   void projection::run() {
@@ -75,8 +84,8 @@ namespace projection {
       wl_seat_add_listener(display->seat, &seat_listener, display);
     } else if (strcmp(interface, "wl_shm") == 0) {
       display->shm = (wl_shm *)wl_registry_bind(registry, name, &wl_shm_interface, 1);
-      display->cursor_theme = wl_cursor_theme_load(NULL, 32, display->shm);
-      display->default_cursor = wl_cursor_theme_get_cursor(display->cursor_theme, "left_ptr");
+      // display->cursor_theme = wl_cursor_theme_load(NULL, 32, display->shm);
+      // display->default_cursor = wl_cursor_theme_get_cursor(display->cursor_theme, "left_ptr");
     }
   }
 
@@ -122,6 +131,16 @@ namespace projection {
     assert(display->egl.ctx);
   }
 
+  void projection::fini_egl(struct display *display)
+  {
+    /* Required, otherwise segfault in egl_dri2.c: dri2_make_current()
+     * on eglReleaseThread(). */
+    eglMakeCurrent(display->egl.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+
+    eglTerminate(display->egl.dpy);
+    eglReleaseThread();
+  }
+
   void projection::create_surface(struct window *window)
   {
     struct display *display = window->display;
@@ -152,24 +171,44 @@ namespace projection {
 
   void projection::toggle_fullscreen(struct window *window, int fullscreen)
   {
-  	struct wl_callback *callback;
+    struct wl_callback *callback;
 
-  	window->fullscreen = fullscreen;
-  	window->configured = 0;
+    window->fullscreen = fullscreen;
+    window->configured = 0;
 
-  	if (fullscreen) {
-  		wl_shell_surface_set_fullscreen(window->shell_surface,
-  						WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT,
-  						0, NULL);
-  	} else {
-  		wl_shell_surface_set_toplevel(window->shell_surface);
-  		handle_configure(window, window->shell_surface, 0,
-  				 window->window_size.width,
-  				 window->window_size.height);
-  	}
+    if (fullscreen) {
+      wl_shell_surface_set_fullscreen(window->shell_surface,
+              WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT,
+              0, NULL);
+    } else {
+      wl_shell_surface_set_toplevel(window->shell_surface);
+      handle_configure(window, window->shell_surface, 0,
+           window->window_size.width,
+           window->window_size.height);
+    }
 
-  	callback = wl_display_sync(window->display->display);
-  	wl_callback_add_listener(callback, &configure_callback_listener,
-  				 window);
+    callback = wl_display_sync(window->display->display);
+    wl_callback_add_listener(callback, &configure_callback_listener,
+           window);
+  }
+
+  void projection::destroy_surface(struct window *window)
+  {
+    /* Required, otherwise segfault in egl_dri2.c: dri2_make_current()
+     * on eglReleaseThread(). */
+    eglMakeCurrent(window->display->egl.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE,
+             EGL_NO_CONTEXT);
+
+    eglDestroySurface(window->display->egl.dpy, window->egl_surface);
+    wl_egl_window_destroy(window->native);
+
+    // if (window->xdg_surface)
+    //   xdg_surface_destroy(window->xdg_surface);
+    // if (window->display->ivi_application)
+    //   ivi_surface_destroy(window->ivi_surface);
+    wl_surface_destroy(window->surface);
+
+    if (window->callback)
+      wl_callback_destroy(window->callback);
   }
 }

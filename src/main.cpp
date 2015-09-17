@@ -15,19 +15,13 @@ void signal_int(int)
   p.stop();
 }
 
-void timedstop() {
-  sleep(5);
-  p.stop();
-}
-
-int main() {
+int main()
+{
   struct sigaction sigint;
   sigint.sa_handler = signal_int;
   sigemptyset(&sigint.sa_mask);
   sigint.sa_flags = SA_RESETHAND;
   sigaction(SIGINT, &sigint, NULL);
-
-  thread t0{timedstop};
 
   p.run();
 
