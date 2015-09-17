@@ -1,29 +1,37 @@
-#include <cstdlib>
 #include <csignal>
-#include <unistd.h>
-#include <iostream>
+#include <memory>
+
 #include <projection/projection.hpp>
-#include <thread>
 
 using namespace std;
 
-projection::projection p;
+static shared_ptr<projection::projection> p = make_shared<projection::projection>();
 
-// void signal_int(int signum)
-void signal_int(int)
+void handle_signal(int signal)
 {
-  p.stop();
+  switch (signal) {
+    case SIGHUP:
+    case SIGINT:
+    case SIGQUIT:
+    case SIGKILL:
+      p->stop();
+  }
+}
+
+void handle_signals()
+{
+  struct sigaction sigint;
+  sigint.sa_handler = &handle_signal;
+  sigemptyset(&sigint.sa_mask);
+  sigint.sa_flags = SA_RESETHAND;
+  sigaction(SIGINT, &sigint, NULL);
 }
 
 int main()
 {
-  struct sigaction sigint;
-  sigint.sa_handler = signal_int;
-  sigemptyset(&sigint.sa_mask);
-  sigint.sa_flags = SA_RESETHAND;
-  sigaction(SIGINT, &sigint, NULL);
+  auto p = make_shared<projection::projection>();
 
-  p.run();
+  p->run();
 
   return EXIT_SUCCESS;
 }
