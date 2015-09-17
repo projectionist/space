@@ -11,6 +11,7 @@
 #include <projection/shell_surface_listener.hpp>
 #include <projection/configure_callback_listener.hpp>
 #include <projection/funcs.hpp>
+#include <projection/seat_listener.hpp>
 
 using namespace std;
 
@@ -24,6 +25,7 @@ namespace projection {
   {
     window.display = &display;
     display.window = &window;
+    display.projection = (void *)this;
 
     window.window_size.width  = 250;
     window.window_size.height = 250;
@@ -57,7 +59,6 @@ namespace projection {
   }
 
   void projection::stop() {
-    cerr << "STOP!" << endl;
     running = false;
   }
 
@@ -69,6 +70,9 @@ namespace projection {
       display->compositor = (wl_compositor *)wl_registry_bind(registry, name, &wl_compositor_interface, 1);
     } else if (strcmp(interface, "wl_shell") == 0) {
       display->shell = (wl_shell *)wl_registry_bind(registry, name, &wl_shell_interface, 1);
+    } else if (strcmp(interface, "wl_seat") == 0) {
+      display->seat = (wl_seat *)wl_registry_bind(registry, name, &wl_seat_interface, 1);
+      wl_seat_add_listener(display->seat, &seat_listener, display);
     } else if (strcmp(interface, "wl_shm") == 0) {
       display->shm = (wl_shm *)wl_registry_bind(registry, name, &wl_shm_interface, 1);
       display->cursor_theme = wl_cursor_theme_load(NULL, 32, display->shm);
