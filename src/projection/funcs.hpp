@@ -122,16 +122,13 @@ namespace projection {
     glDisableVertexAttribArray(window->gl.col);
 
     // if (window->opaque || window->fullscreen) {
-    if (1 || window->fullscreen) {
-      region = wl_compositor_create_region(window->display->compositor);
-      wl_region_add(region, 0, 0,
-              window->geometry.width,
-              window->geometry.height);
-      wl_surface_set_opaque_region(window->surface, region);
-      wl_region_destroy(region);
-    } else {
-      wl_surface_set_opaque_region(window->surface, NULL);
-    }
+    region = wl_compositor_create_region(window->display->compositor);
+    wl_region_add(region, 0, 0,
+            window->geometry.width,
+            window->geometry.height);
+    wl_surface_set_opaque_region(window->surface, region);
+    wl_region_destroy(region);
+
 
     window->callback = wl_surface_frame(window->surface);
     wl_callback_add_listener(window->callback, &frame_listener, window);

@@ -7,7 +7,7 @@
 namespace projection {
   struct window {
     struct display *display;
-    struct geometry geometry, window_size;
+    struct geometry geometry;
     struct {
       GLuint rotation_uniform;
       GLuint pos;
@@ -19,6 +19,6 @@ namespace projection {
     struct wl_shell_surface *shell_surface;
     EGLSurface egl_surface;
     struct wl_callback *callback;
-    int fullscreen, configured;
+    int configured;
   };
 }

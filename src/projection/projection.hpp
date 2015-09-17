@@ -19,7 +19,6 @@ namespace projection {
     static void destroy_surface(struct window *);
     static void handle_ping(void *, struct wl_shell_surface *, uint32_t);
     static void handle_popup_done(void *, struct wl_shell_surface *);
-    static void toggle_fullscreen(struct window *, int);
   public:
     explicit projection();
     ~projection();
