@@ -1,7 +1,6 @@
 #pragma once
 
 #include <wayland-client.h>
-#include <wayland-cursor.h>
 
 #include <EGL/egl.h>
 
