@@ -34,8 +34,7 @@ namespace projection {
     "}\n";
 
 
-  static GLuint
-  create_shader(const char *source, GLenum shader_type)
+  static GLuint create_shader(const char *source, GLenum shader_type)
   {
     GLuint shader;
     GLint status;
@@ -171,6 +170,4 @@ namespace projection {
     display->gl.rotation_uniform =
       glGetUniformLocation(program, "rotation");
   }
-
-
 }

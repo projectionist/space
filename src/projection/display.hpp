@@ -7,7 +7,9 @@
 
 namespace projection {
   struct display {
-    void *projection;
+    struct wl_display *display;
+    bool configured;
+    bool stop_flag;
     struct wl_registry *registry;
     struct wl_compositor *compositor;
     struct wl_shell *shell;
@@ -19,7 +21,6 @@ namespace projection {
       EGLContext ctx;
       EGLConfig conf;
     } egl;
-    struct wl_display *display;
     struct {
       int width;
       int height;
@@ -34,6 +35,5 @@ namespace projection {
     struct wl_shell_surface *shell_surface;
     EGLSurface egl_surface;
     struct wl_callback *callback;
-    int configured;
   };
 }

@@ -2,7 +2,7 @@
 
 #include <wayland-client.h>
 #include <projection/display.hpp>
-#include <projection/seat_listener.hpp>
+#include <projection/wayland/seat_listener.hpp>
 
 namespace projection {
   namespace wayland {
@@ -31,17 +31,22 @@ namespace projection {
       registry_handle_global_remove
     };
 
-    void init_registry(struct display *display) {
+    void init_registry(struct display *display)
+    {
       display->registry = wl_display_get_registry(display->display);
       wl_registry_add_listener(display->registry, &registry_listener, display);
     }
 
-    void destroy_registry(struct display* display) {
-      if (display->shell)
+    void destroy_registry(struct display* display)
+    {
+      if (display->shell) {
         wl_shell_destroy(display->shell);
+      }
 
-      if (display->compositor)
+      if (display->compositor) {
         wl_compositor_destroy(display->compositor);
+      }
+
       wl_registry_destroy(display->registry);
     }
   }

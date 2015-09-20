@@ -5,7 +5,6 @@
 
 namespace projection {
   class projection {
-    bool running;
     struct display display;
   public:
     explicit projection();

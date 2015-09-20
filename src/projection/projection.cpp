@@ -20,11 +20,8 @@ using namespace std;
 namespace projection {
 
   projection::projection():
-    running(true),
     display()
   {
-    display.projection = (void *)this;
-
     display.display = wl_display_connect(NULL);
     assert(display.display);
 
@@ -47,12 +44,13 @@ namespace projection {
 
   void projection::run() {
     int ret = 0;
-    while (running && ret != -1) {
+    while (!display.stop_flag) {
       ret = wl_display_dispatch(display.display);
+      if (ret == -1) break;
     }
   }
 
   void projection::stop() {
-    running = false;
+    display.stop_flag = true;
   }
 }

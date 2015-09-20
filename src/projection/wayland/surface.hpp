@@ -16,8 +16,6 @@ namespace projection {
     {
       struct display *display = (struct display *)data;
 
-      printf("configure: wxh: %dx%d\n", width, height);
-
       if (display->native)
         wl_egl_window_resize(display->native, width, height, 0, 0);
 
