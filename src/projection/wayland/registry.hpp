@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <wayland-client.h>
 #include <projection/display.hpp>
 #include <projection/wayland/seat_listener.hpp>

@@ -1,15 +1,22 @@
 #include <csignal>
 #include <memory>
 
-#include <projection/projection.hpp>
+#include <projection/start.hpp>
+#include <scratch/scratch.hpp>
 
 using namespace std;
 
-static shared_ptr<projection::projection> p = make_shared<projection::projection>();
-
 int main()
 {
-  p->run();
+  scratch::scratch s;
+  projection::play(s);
+
+  /*
+
+  auto p = uniq_ptr<projection::projection>();
+  projection::start(p);
+
+  */
 
   return EXIT_SUCCESS;
 }
