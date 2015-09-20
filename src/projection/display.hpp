@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <wayland-client.h>
 #include <wayland-egl.h>
 #include <EGL/egl.h>
@@ -31,6 +32,6 @@ namespace projection {
     struct wl_shell_surface *shell_surface;
     EGLSurface egl_surface;
     struct wl_callback *callback;
-    scratch::scratch drawing;
+    std::shared_ptr<scratch::scratch> drawing;
   };
 }

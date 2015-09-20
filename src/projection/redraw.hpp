@@ -15,49 +15,6 @@ namespace projection {
     redraw
   };
 
-  static const char *vert_shader_text =
-    "uniform mat4 rotation;\n"
-    "attribute vec4 pos;\n"
-    "attribute vec4 color;\n"
-    "varying vec4 v_color;\n"
-    "void main() {\n"
-    "  gl_Position = rotation * pos;\n"
-    "  v_color = color;\n"
-    "}\n";
-
-  static const char *frag_shader_text =
-    "precision mediump float;\n"
-    "varying vec4 v_color;\n"
-    "void main() {\n"
-    "  gl_FragColor = v_color;\n"
-    "}\n";
-
-
-  static GLuint create_shader(const char *source, GLenum shader_type)
-  {
-    GLuint shader;
-    GLint status;
-
-    shader = glCreateShader(shader_type);
-    assert(shader != 0);
-
-    glShaderSource(shader, 1, (const char **) &source, NULL);
-    glCompileShader(shader);
-
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (!status) {
-      char log[1000];
-      GLsizei len;
-      glGetShaderInfoLog(shader, 1000, &len, log);
-      fprintf(stderr, "Error: compiling %s: %*s\n",
-        shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
-        len, log);
-      exit(1);
-    }
-
-    return shader;
-  }
-
 
   void redraw(void *data, struct wl_callback *callback, uint32_t time)
   {
@@ -74,7 +31,7 @@ namespace projection {
     if (!display->configured)
       return;
 
-    display->drawing.redraw(display->geometry.width, display->geometry.height, time);
+    display->drawing->redraw(display->geometry.width, display->geometry.height, time);
 
     // if (display->opaque || display->fullscreen) {
     region = wl_compositor_create_region(display->compositor);
@@ -89,15 +46,5 @@ namespace projection {
     wl_callback_add_listener(display->callback, &frame_listener, display);
 
     eglSwapBuffers(display->egl.dpy, display->egl_surface);
-  }
-
-  void init_gl(struct display *display)
-  {
-    GLuint frag, vert;
-
-    frag = create_shader(frag_shader_text, GL_FRAGMENT_SHADER);
-    vert = create_shader(vert_shader_text, GL_VERTEX_SHADER);
-
-    display->drawing.initialize(frag, vert);
   }
 }

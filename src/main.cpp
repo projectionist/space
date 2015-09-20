@@ -8,15 +8,8 @@ using namespace std;
 
 int main()
 {
-  scratch::scratch s;
+  auto s = make_shared<scratch::scratch>();
   projection::play(s);
-
-  /*
-
-  auto p = uniq_ptr<projection::projection>();
-  projection::start(p);
-
-  */
 
   return EXIT_SUCCESS;
 }
