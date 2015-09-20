@@ -10,7 +10,7 @@ namespace scratch {
       GLuint pos;
       GLuint col;
     } gl;
-    void initialize();
+    void initialize(GLuint frag, GLuint vert);
     void redraw(int width, int height, uint32_t time);
   };
 }

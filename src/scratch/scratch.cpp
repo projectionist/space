@@ -1,10 +1,40 @@
 #include <math.h>
+#include <cstdio>
+#include <cstdlib>
 #include <scratch/scratch.hpp>
+#include <GLES2/gl2.h>
 
 namespace scratch {
-  void scratch::initialize()
+  void scratch::initialize(GLuint frag, GLuint vert)
   {
-    
+    GLuint program;
+    GLint status;
+
+    program = glCreateProgram();
+    glAttachShader(program, frag);
+    glAttachShader(program, vert);
+    glLinkProgram(program);
+
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
+    if (!status) {
+      char log[1000];
+      GLsizei len;
+      glGetProgramInfoLog(program, 1000, &len, log);
+      fprintf(stderr, "Error: linking:\n%*s\n", len, log);
+      exit(1);
+    }
+
+    glUseProgram(program);
+
+    gl.pos = 0;
+    gl.col = 1;
+
+    glBindAttribLocation(program, gl.pos, "pos");
+    glBindAttribLocation(program, gl.col, "color");
+    glLinkProgram(program);
+
+    gl.rotation_uniform =
+      glGetUniformLocation(program, "rotation");
   }
 
   void scratch::redraw(int width, int height, uint32_t time)

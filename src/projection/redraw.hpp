@@ -93,38 +93,11 @@ namespace projection {
 
   void init_gl(struct display *display)
   {
-    display->drawing.initialize();
     GLuint frag, vert;
-    GLuint program;
-    GLint status;
 
     frag = create_shader(frag_shader_text, GL_FRAGMENT_SHADER);
     vert = create_shader(vert_shader_text, GL_VERTEX_SHADER);
 
-    program = glCreateProgram();
-    glAttachShader(program, frag);
-    glAttachShader(program, vert);
-    glLinkProgram(program);
-
-    glGetProgramiv(program, GL_LINK_STATUS, &status);
-    if (!status) {
-      char log[1000];
-      GLsizei len;
-      glGetProgramInfoLog(program, 1000, &len, log);
-      fprintf(stderr, "Error: linking:\n%*s\n", len, log);
-      exit(1);
-    }
-
-    glUseProgram(program);
-
-    display->drawing.gl.pos = 0;
-    display->drawing.gl.col = 1;
-
-    glBindAttribLocation(program, display->drawing.gl.pos, "pos");
-    glBindAttribLocation(program, display->drawing.gl.col, "color");
-    glLinkProgram(program);
-
-    display->drawing.gl.rotation_uniform =
-      glGetUniformLocation(program, "rotation");
+    display->drawing.initialize(frag, vert);
   }
 }
