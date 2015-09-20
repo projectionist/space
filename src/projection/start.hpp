@@ -2,11 +2,11 @@
 
 #include <wayland-client.h>
 
-#include <projection/funcs.hpp>
-#include <projection/egl/egl.hpp>
-#include <projection/wayland/configure.hpp>
-#include <projection/wayland/surface.hpp>
-#include <projection/wayland/registry.hpp>
+#include <projection/egl.hpp>
+#include <projection/redraw.hpp>
+#include <projection/configure.hpp>
+#include <projection/surface.hpp>
+#include <projection/registry.hpp>
 
 #include <projection/display.hpp>
 
@@ -22,12 +22,12 @@ namespace projection {
     display.display = wl_display_connect(NULL);
     assert(display.display);
 
-    wayland::init_registry(&display);
+    init_registry(&display);
 
     wl_display_dispatch(display.display);
 
-    egl::init_egl(&display);
-    wayland::create_surface(&display);
+    init_egl(&display);
+    create_surface(&display);
     init_gl(&display);
 
     int ret = 0;
@@ -36,10 +36,10 @@ namespace projection {
       if (ret == -1) break;
     }
 
-    wayland::destroy_surface(&display);
-    egl::fini_egl(&display);
+    destroy_surface(&display);
+    fini_egl(&display);
 
-    wayland::destroy_registry(&display);
+    destroy_registry(&display);
     wl_display_flush(display.display);
     wl_display_disconnect(display.display);
   }
