@@ -7,7 +7,6 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
-
 namespace projection {
 
   void redraw(void *data, struct wl_callback *callback, uint32_t time);
@@ -63,25 +62,7 @@ namespace projection {
   void redraw(void *data, struct wl_callback *callback, uint32_t time)
   {
     struct display *display = (struct display *)data;
-    static const GLfloat verts[3][2] = {
-      { -0.5, -0.5 },
-      {  0.5, -0.5 },
-      {  0,    0.5 }
-    };
-    static const GLfloat colors[3][3] = {
-      { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 0, 0, 1 }
-    };
-    GLfloat angle;
-    GLfloat rotation[4][4] = {
-      { 1, 0, 0, 0 },
-      { 0, 1, 0, 0 },
-      { 0, 0, 1, 0 },
-      { 0, 0, 0, 1 }
-    };
-    static const int32_t speed_div = 5;
-    static uint32_t start_time = 0;
+
     struct wl_region *region;
 
     assert(display->callback == callback);
@@ -93,32 +74,7 @@ namespace projection {
     if (!display->configured)
       return;
 
-    if (start_time == 0)
-      start_time = time;
-
-    angle = ((time-start_time) / speed_div) % 360 * M_PI / 180.0;
-    rotation[0][0] =  cos(angle);
-    rotation[0][2] =  sin(angle);
-    rotation[2][0] = -sin(angle);
-    rotation[2][2] =  cos(angle);
-
-    glViewport(0, 0, display->geometry.width, display->geometry.height);
-
-    glUniformMatrix4fv(display->gl.rotation_uniform, 1, GL_FALSE,
-           (GLfloat *) rotation);
-
-    glClearColor(0.0, 0.0, 0.0, 0.5);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glVertexAttribPointer(display->gl.pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
-    glVertexAttribPointer(display->gl.col, 3, GL_FLOAT, GL_FALSE, 0, colors);
-    glEnableVertexAttribArray(display->gl.pos);
-    glEnableVertexAttribArray(display->gl.col);
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glDisableVertexAttribArray(display->gl.pos);
-    glDisableVertexAttribArray(display->gl.col);
+    display->drawing.redraw(display->geometry.width, display->geometry.height, time);
 
     // if (display->opaque || display->fullscreen) {
     region = wl_compositor_create_region(display->compositor);
@@ -137,6 +93,7 @@ namespace projection {
 
   void init_gl(struct display *display)
   {
+    display->drawing.initialize();
     GLuint frag, vert;
     GLuint program;
     GLint status;
@@ -160,14 +117,14 @@ namespace projection {
 
     glUseProgram(program);
 
-    display->gl.pos = 0;
-    display->gl.col = 1;
+    display->drawing.gl.pos = 0;
+    display->drawing.gl.col = 1;
 
-    glBindAttribLocation(program, display->gl.pos, "pos");
-    glBindAttribLocation(program, display->gl.col, "color");
+    glBindAttribLocation(program, display->drawing.gl.pos, "pos");
+    glBindAttribLocation(program, display->drawing.gl.col, "color");
     glLinkProgram(program);
 
-    display->gl.rotation_uniform =
+    display->drawing.gl.rotation_uniform =
       glGetUniformLocation(program, "rotation");
   }
 }

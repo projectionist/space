@@ -5,6 +5,8 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
+#include <scratch/scratch.hpp>
+
 namespace projection {
   struct display {
     struct wl_display *display;
@@ -25,15 +27,11 @@ namespace projection {
       int width;
       int height;
     } geometry;
-    struct {
-      GLuint rotation_uniform;
-      GLuint pos;
-      GLuint col;
-    } gl;
     struct wl_egl_window *native;
     struct wl_surface *surface;
     struct wl_shell_surface *shell_surface;
     EGLSurface egl_surface;
     struct wl_callback *callback;
+    scratch::scratch drawing;
   };
 }
