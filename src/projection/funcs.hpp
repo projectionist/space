@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <wayland-client.h>
+#include <projection/display.hpp>
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
@@ -63,7 +63,7 @@ namespace projection {
 
   void redraw(void *data, struct wl_callback *callback, uint32_t time)
   {
-    struct window *window = (struct window *)data;
+    struct display *display = (struct display *)data;
     static const GLfloat verts[3][2] = {
       { -0.5, -0.5 },
       {  0.5, -0.5 },
@@ -85,13 +85,13 @@ namespace projection {
     static uint32_t start_time = 0;
     struct wl_region *region;
 
-    assert(window->callback == callback);
-    window->callback = NULL;
+    assert(display->callback == callback);
+    display->callback = NULL;
 
     if (callback)
       wl_callback_destroy(callback);
 
-    if (!window->configured)
+    if (!display->configured)
       return;
 
     if (start_time == 0)
@@ -103,40 +103,40 @@ namespace projection {
     rotation[2][0] = -sin(angle);
     rotation[2][2] =  cos(angle);
 
-    glViewport(0, 0, window->geometry.width, window->geometry.height);
+    glViewport(0, 0, display->geometry.width, display->geometry.height);
 
-    glUniformMatrix4fv(window->gl.rotation_uniform, 1, GL_FALSE,
+    glUniformMatrix4fv(display->gl.rotation_uniform, 1, GL_FALSE,
            (GLfloat *) rotation);
 
     glClearColor(0.0, 0.0, 0.0, 0.5);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glVertexAttribPointer(window->gl.pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
-    glVertexAttribPointer(window->gl.col, 3, GL_FLOAT, GL_FALSE, 0, colors);
-    glEnableVertexAttribArray(window->gl.pos);
-    glEnableVertexAttribArray(window->gl.col);
+    glVertexAttribPointer(display->gl.pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glVertexAttribPointer(display->gl.col, 3, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(display->gl.pos);
+    glEnableVertexAttribArray(display->gl.col);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    glDisableVertexAttribArray(window->gl.pos);
-    glDisableVertexAttribArray(window->gl.col);
+    glDisableVertexAttribArray(display->gl.pos);
+    glDisableVertexAttribArray(display->gl.col);
 
-    // if (window->opaque || window->fullscreen) {
-    region = wl_compositor_create_region(window->display->compositor);
+    // if (display->opaque || display->fullscreen) {
+    region = wl_compositor_create_region(display->compositor);
     wl_region_add(region, 0, 0,
-            window->geometry.width,
-            window->geometry.height);
-    wl_surface_set_opaque_region(window->surface, region);
+            display->geometry.width,
+            display->geometry.height);
+    wl_surface_set_opaque_region(display->surface, region);
     wl_region_destroy(region);
 
 
-    window->callback = wl_surface_frame(window->surface);
-    wl_callback_add_listener(window->callback, &frame_listener, window);
+    display->callback = wl_surface_frame(display->surface);
+    wl_callback_add_listener(display->callback, &frame_listener, display);
 
-    eglSwapBuffers(window->display->egl.dpy, window->egl_surface);
+    eglSwapBuffers(display->egl.dpy, display->egl_surface);
   }
 
-  void init_gl(struct window *window)
+  void init_gl(struct display *display)
   {
     GLuint frag, vert;
     GLuint program;
@@ -161,14 +161,14 @@ namespace projection {
 
     glUseProgram(program);
 
-    window->gl.pos = 0;
-    window->gl.col = 1;
+    display->gl.pos = 0;
+    display->gl.col = 1;
 
-    glBindAttribLocation(program, window->gl.pos, "pos");
-    glBindAttribLocation(program, window->gl.col, "color");
+    glBindAttribLocation(program, display->gl.pos, "pos");
+    glBindAttribLocation(program, display->gl.col, "color");
     glLinkProgram(program);
 
-    window->gl.rotation_uniform =
+    display->gl.rotation_uniform =
       glGetUniformLocation(program, "rotation");
   }
 

@@ -4,13 +4,13 @@
 namespace projection {
   void configure_callback(void *data, struct wl_callback *callback, uint32_t  time)
   {
-    struct window *window = (struct window *)data;
+    struct display *display = (struct display *)data;
 
     wl_callback_destroy(callback);
 
-    window->configured = 1;
+    display->configured = 1;
 
-    if (window->callback == NULL)
+    if (display->callback == NULL)
       redraw(data, NULL, time);
   }
 

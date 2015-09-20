@@ -1,5 +1,8 @@
 #pragma once
 
+
+#include <wayland-egl.h>
+
 namespace projection {
   namespace wayland {
     // void handle_ping(void *data, struct wl_shell_surface *shell_surface, uint32_t serial)
@@ -11,15 +14,15 @@ namespace projection {
     // void handle_configure(void *data, struct wl_shell_surface *shell_surface, uint32_t edges, int32_t width, int32_t height)
     void handle_configure(void *data, struct wl_shell_surface *, uint32_t, int32_t width, int32_t height)
     {
-      struct window *window = (struct window *)data;
+      struct display *display = (struct display *)data;
 
       printf("configure: wxh: %dx%d\n", width, height);
 
-      if (window->native)
-        wl_egl_window_resize(window->native, width, height, 0, 0);
+      if (display->native)
+        wl_egl_window_resize(display->native, width, height, 0, 0);
 
-      window->geometry.width = width;
-      window->geometry.height = height;
+      display->geometry.width = width;
+      display->geometry.height = height;
     }
 
     void handle_popup_done(void *, struct wl_shell_surface *)
@@ -32,53 +35,52 @@ namespace projection {
       handle_popup_done
     };
 
-    void create_surface(struct window *window)
+    void create_surface(struct display *display)
     {
-      struct display *display = window->display;
       EGLBoolean ret;
 
-      window->surface = wl_compositor_create_surface(display->compositor);
-      window->shell_surface = wl_shell_get_shell_surface(display->shell,
-                     window->surface);
+      display->surface = wl_compositor_create_surface(display->compositor);
+      display->shell_surface = wl_shell_get_shell_surface(display->shell,
+                     display->surface);
 
-      wl_shell_surface_add_listener(window->shell_surface,
-                  &shell_surface_listener, window);
+      wl_shell_surface_add_listener(display->shell_surface,
+                  &shell_surface_listener, display);
 
-      window->native = wl_egl_window_create(window->surface, 1, 1);
+      display->native = wl_egl_window_create(display->surface, 1, 1);
 
-      window->egl_surface =
-        eglCreateWindowSurface((EGLDisplay) display->egl.dpy, display->egl.conf, (EGLNativeWindowType) window->native, NULL);
+      display->egl_surface =
+        eglCreateWindowSurface((EGLDisplay) display->egl.dpy, display->egl.conf, (EGLNativeWindowType) display->native, NULL);
 
-      wl_shell_surface_set_title(window->shell_surface, "projection");
+      wl_shell_surface_set_title(display->shell_surface, "projection");
 
-      ret = eglMakeCurrent(window->display->egl.dpy, window->egl_surface,
-               window->egl_surface, window->display->egl.ctx);
+      ret = eglMakeCurrent(display->egl.dpy, display->egl_surface,
+               display->egl_surface, display->egl.ctx);
       assert(ret == EGL_TRUE);
 
       struct wl_callback *callback;
 
-      window->configured = 0;
+      display->configured = 0;
 
-      wl_shell_surface_set_fullscreen(window->shell_surface,
+      wl_shell_surface_set_fullscreen(display->shell_surface,
         WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, NULL);
 
-      callback = wl_display_sync(window->display->display);
-      wl_callback_add_listener(callback, &configure_callback_listener, window);
+      callback = wl_display_sync(display->display);
+      wl_callback_add_listener(callback, &configure_callback_listener, display);
     }
 
-    void destroy_surface(struct window *window)
+    void destroy_surface(struct display *display)
     {
       /* Required, otherwise segfault in egl_dri2.c: dri2_make_current()
        * on eglReleaseThread(). */
-      eglMakeCurrent(window->display->egl.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+      eglMakeCurrent(display->egl.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
-      eglDestroySurface(window->display->egl.dpy, window->egl_surface);
-      wl_egl_window_destroy(window->native);
+      eglDestroySurface(display->egl.dpy, display->egl_surface);
+      wl_egl_window_destroy(display->native);
 
-      wl_surface_destroy(window->surface);
+      wl_surface_destroy(display->surface);
 
-      if (window->callback)
-        wl_callback_destroy(window->callback);
+      if (display->callback)
+        wl_callback_destroy(display->callback);
     }
   }
 }
