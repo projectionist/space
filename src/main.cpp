@@ -1,8 +1,9 @@
 #include <csignal>
 #include <memory>
 
-#include <projection/start.hpp>
+#include <projection/play.hpp>
 #include <scratch/scratch.hpp>
+#include <projection/shader.hpp>
 
 using namespace std;
 
