@@ -4,13 +4,29 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstring>
+#include <cassert>
 
 using namespace std;
 
 namespace projection {
 
-  shader::shader(string path): path(path)
+  shader::shader(string path, GLenum shader_type):
+    src(NULL),
+    path(path),
+    shader_type(shader_type)
   {
+    reload();
+  }
+  shader::~shader()
+  {
+    // release the c string
+    free(src);
+  }
+
+  void shader::reload()
+  {
+    if (src != NULL) free(src);
+
     ifstream f(path);
     if(!f.is_open()) {
       throw runtime_error("can't open file: " + path);
@@ -25,16 +41,29 @@ namespace projection {
     src = (char *) calloc(str.length() + 1, sizeof(char));
     memcpy(src, str.c_str(), str.length());
   }
-  shader::~shader()
+
+  GLuint shader::get()
   {
-    // release the c string
-    free(src);
+    GLuint shader;
+    GLint status;
+
+    shader = glCreateShader(shader_type);
+    assert(shader != 0);
+
+    glShaderSource(shader, 1, (const char **) &src, NULL);
+    glCompileShader(shader);
+
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    if (!status) {
+      char log[1000];
+      GLsizei len;
+      glGetShaderInfoLog(shader, 1000, &len, log);
+      fprintf(stderr, "Error: compiling %s: %*s\n",
+        shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
+        len, log);
+      exit(1);
+    }
+
+    return shader;
   }
-  // delete the copy/move ctor/assign
-  // shader(const shader&) = delete;
-  // shader& operator=(shader&) = delete;
-  // shader(const shader&&) = delete;
-  // shader& operator=(shader&&) = delete;
-  // void reload();
-  // GLuint get();
 }

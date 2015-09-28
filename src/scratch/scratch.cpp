@@ -5,49 +5,9 @@
 #include <scratch/scratch.hpp>
 #include <GLES2/gl2.h>
 
+#include <projection/shader.hpp>
+
 namespace scratch {
-
-  static const char *vert_shader_text =
-    "uniform mat4 rotation;\n"
-    "attribute vec4 pos;\n"
-    "attribute vec4 color;\n"
-    "varying vec4 v_color;\n"
-    "void main() {\n"
-    "  gl_Position = rotation * pos;\n"
-    "  v_color = color;\n"
-    "}\n";
-
-  static const char *frag_shader_text =
-    "precision mediump float;\n"
-    "varying vec4 v_color;\n"
-    "void main() {\n"
-    "  gl_FragColor = v_color;\n"
-    "}\n";
-
-  GLuint scratch::create_shader(const char *source, GLenum shader_type)
-  {
-    GLuint shader;
-    GLint status;
-
-    shader = glCreateShader(shader_type);
-    assert(shader != 0);
-
-    glShaderSource(shader, 1, (const char **) &source, NULL);
-    glCompileShader(shader);
-
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (!status) {
-      char log[1000];
-      GLsizei len;
-      glGetShaderInfoLog(shader, 1000, &len, log);
-      fprintf(stderr, "Error: compiling %s: %*s\n",
-        shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
-        len, log);
-      exit(1);
-    }
-
-    return shader;
-  }
 
   void scratch::initialize()
   {
@@ -55,8 +15,8 @@ namespace scratch {
     GLuint frag, vert;
     GLint status;
 
-    frag = create_shader(frag_shader_text, GL_FRAGMENT_SHADER);
-    vert = create_shader(vert_shader_text, GL_VERTEX_SHADER);
+    frag = projection::shader("./src/scratch/frag.glsl", GL_FRAGMENT_SHADER).get();
+    vert = projection::shader("./src/scratch/vert.glsl", GL_VERTEX_SHADER).get();
 
     program = glCreateProgram();
     glAttachShader(program, frag);
