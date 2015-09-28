@@ -44,6 +44,12 @@ namespace projection {
 
   GLuint shader::get()
   {
+    auto hot_shaders = getenv("HOT_SHADERS");
+
+    if(hot_shaders && string(hot_shaders) == "1") {
+      reload();
+    }
+
     GLuint shader;
     GLint status;
 
