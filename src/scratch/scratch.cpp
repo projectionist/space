@@ -19,6 +19,7 @@ namespace scratch {
     vert = projection::shader("./src/scratch/vert.glsl", GL_VERTEX_SHADER).get();
 
     program = glCreateProgram();
+
     glAttachShader(program, frag);
     glAttachShader(program, vert);
     glLinkProgram(program);
@@ -34,14 +35,14 @@ namespace scratch {
 
     glUseProgram(program);
 
-    gl.pos = 0;
-    gl.col = 1;
+    pos = 0;
+    col = 1;
 
-    glBindAttribLocation(program, gl.pos, "pos");
-    glBindAttribLocation(program, gl.col, "color");
+    glBindAttribLocation(program, pos, "pos");
+    glBindAttribLocation(program, col, "color");
     glLinkProgram(program);
 
-    gl.rotation_uniform =
+    rotation_uniform =
       glGetUniformLocation(program, "rotation");
   }
 
@@ -76,23 +77,22 @@ namespace scratch {
     rotation[2][0] = -sin(angle);
     rotation[2][2] =  cos(angle);
 
-
     glViewport(0, 0, width, height);
 
-    glUniformMatrix4fv(gl.rotation_uniform, 1, GL_FALSE,
+    glUniformMatrix4fv(rotation_uniform, 1, GL_FALSE,
            (GLfloat *) rotation);
 
     glClearColor(0.0, 0.0, 0.0, 0.5);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glVertexAttribPointer(gl.pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
-    glVertexAttribPointer(gl.col, 3, GL_FLOAT, GL_FALSE, 0, colors);
-    glEnableVertexAttribArray(gl.pos);
-    glEnableVertexAttribArray(gl.col);
+    glVertexAttribPointer(pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glVertexAttribPointer(col, 3, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(pos);
+    glEnableVertexAttribArray(col);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    glDisableVertexAttribArray(gl.pos);
-    glDisableVertexAttribArray(gl.col);
+    glDisableVertexAttribArray(pos);
+    glDisableVertexAttribArray(col);
   }
 }
