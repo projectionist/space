@@ -25,8 +25,6 @@ namespace projection {
 
   void shader::reload()
   {
-    if (src != NULL) free(src);
-
     ifstream f(path);
     if(!f.is_open()) {
       throw runtime_error("can't open file: " + path);
@@ -36,6 +34,8 @@ namespace projection {
     buffer << f.rdbuf();
 
     string str = buffer.str();
+
+    if (src != NULL) free(src);
 
     // allocate a heap c string
     src = (char *) calloc(str.length() + 1, sizeof(char));
@@ -51,7 +51,7 @@ namespace projection {
     }
 
     GLuint shader;
-    GLint status;
+    GLint compiled;
 
     shader = glCreateShader(shader_type);
     assert(shader != 0);
@@ -59,15 +59,21 @@ namespace projection {
     glShaderSource(shader, 1, (const char **) &src, NULL);
     glCompileShader(shader);
 
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (!status) {
-      char log[1000];
-      GLsizei len;
-      glGetShaderInfoLog(shader, 1000, &len, log);
-      fprintf(stderr, "Error: compiling %s: %*s\n",
-        shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
-        len, log);
-      exit(1);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+    if (!compiled) {
+      GLint infoLen = 0;
+      glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+
+      if(infoLen > 1)
+      {
+        char* infoLog = (char *) malloc(sizeof(char) * infoLen);
+        glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
+        fprintf(stderr, "Error compiling shader:\n%s\n", infoLog);
+        free(infoLog);
+      }
+
+      glDeleteShader(shader);
+      throw runtime_error("Shader compilation failed: " + path);
     }
 
     return shader;
