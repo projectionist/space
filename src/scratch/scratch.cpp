@@ -2,97 +2,78 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#include <stdexcept>
 #include <scratch/scratch.hpp>
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #include <projection/shader.hpp>
+
+using namespace std;
 
 namespace scratch {
 
   void scratch::initialize()
   {
-    GLuint program;
+    program = glCreateProgram();
+
     GLuint frag, vert;
-    GLint status;
+    GLint linked;
 
     frag = projection::shader("./src/scratch/frag.glsl", GL_FRAGMENT_SHADER).get();
     vert = projection::shader("./src/scratch/vert.glsl", GL_VERTEX_SHADER).get();
 
-    program = glCreateProgram();
-
     glAttachShader(program, frag);
     glAttachShader(program, vert);
+
+    // Bind vPosition to attribute 0
+    glBindAttribLocation(program, 0, "vPosition");
+
     glLinkProgram(program);
 
-    glGetProgramiv(program, GL_LINK_STATUS, &status);
-    if (!status) {
-      char log[1000];
-      GLsizei len;
-      glGetProgramInfoLog(program, 1000, &len, log);
-      fprintf(stderr, "Error: linking:\n%*s\n", len, log);
-      exit(1);
+    glGetProgramiv(program, GL_LINK_STATUS, &linked);
+
+    if (!linked) {
+      GLint info_len = 0;
+
+      glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_len);
+
+      if ( info_len > 1 )
+      {
+         char* info_log = (char *)malloc (sizeof(char) * info_len );
+         // TODO check info log allocation
+
+         glGetProgramInfoLog(program, info_len, NULL, info_log);
+         fprintf(stderr, "Error linking program:\n%s\n", info_log);
+
+         free(info_log);
+      }
+
+      glDeleteProgram(program);
+      throw runtime_error("Error linking program. Bail.");
     }
 
-    glUseProgram(program);
-
-    pos = 0;
-    col = 1;
-
-    glBindAttribLocation(program, pos, "pos");
-    glBindAttribLocation(program, col, "color");
-    glLinkProgram(program);
-
-    rotation_uniform =
-      glGetUniformLocation(program, "rotation");
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   }
 
   void scratch::redraw(int width, int height, uint32_t time)
   {
-    static const GLfloat verts[3][2] = {
-      { -0.5, -0.5 },
-      {  0.5, -0.5 },
-      {  0,    0.5 }
-    };
-    static const GLfloat colors[3][3] = {
-      { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 0, 0, 1 }
-    };
-    GLfloat angle;
-    GLfloat rotation[4][4] = {
-      { 1, 0, 0, 0 },
-      { 0, 1, 0, 0 },
-      { 0, 0, 1, 0 },
-      { 0, 0, 0, 1 }
-    };
-    static const int32_t speed_div = 5;
-    static uint32_t start_time = 0;
+    glUseProgram(program);
 
-    if (start_time == 0)
-      start_time = time;
+    GLfloat vVertices[] = {  0.0f,  0.5f, 0.0f,
+                            -0.5f, -0.5f, 0.0f,
+                             0.5f, -0.5f, 0.0f };
 
-    angle = ((time-start_time) / speed_div) % 360 * M_PI / 180.0;
-    rotation[0][0] =  cos(angle);
-    rotation[0][2] =  sin(angle);
-    rotation[2][0] = -sin(angle);
-    rotation[2][2] =  cos(angle);
-
+    // Set the viewport
     glViewport(0, 0, width, height);
 
-    glUniformMatrix4fv(rotation_uniform, 1, GL_FALSE,
-           (GLfloat *) rotation);
-
-    glClearColor(0.0, 0.0, 0.0, 0.5);
+    // Clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glVertexAttribPointer(pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
-    glVertexAttribPointer(col, 3, GL_FLOAT, GL_FALSE, 0, colors);
-    glEnableVertexAttribArray(pos);
-    glEnableVertexAttribArray(col);
+    // Load the vertex data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
+    glEnableVertexAttribArray(0);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glDisableVertexAttribArray(pos);
-    glDisableVertexAttribArray(col);
   }
 }
