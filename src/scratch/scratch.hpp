@@ -1,11 +1,14 @@
 #pragma once
 
+#include <projection/shader.hpp>
+#include <memory>
 #include <GLES2/gl2.h>
 
 namespace scratch {
   class scratch {
     GLuint program;
-    static GLuint create_shader(const char *source, GLenum shader_type);
+    std::unique_ptr<projection::shader> vertex_shader;
+    std::unique_ptr<projection::shader> fragment_shader;
   public:
     void initialize();
     void redraw(int width, int height, uint32_t time);

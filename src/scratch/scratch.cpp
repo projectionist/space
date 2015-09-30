@@ -17,14 +17,13 @@ namespace scratch {
   {
     program = glCreateProgram();
 
-    GLuint frag, vert;
     GLint linked;
 
-    frag = projection::shader("./src/scratch/frag.glsl", GL_FRAGMENT_SHADER).get();
-    vert = projection::shader("./src/scratch/vert.glsl", GL_VERTEX_SHADER).get();
+    vertex_shader = make_unique<projection::shader>("./src/scratch/vert.glsl", GL_VERTEX_SHADER);
+    fragment_shader = make_unique<projection::shader>("./src/scratch/frag.glsl", GL_FRAGMENT_SHADER);
 
-    glAttachShader(program, frag);
-    glAttachShader(program, vert);
+    glAttachShader(program, vertex_shader->get());
+    glAttachShader(program, fragment_shader->get());
 
     // Bind vPosition to attribute 0
     glBindAttribLocation(program, 0, "vPosition");

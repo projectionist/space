@@ -7,7 +7,12 @@ namespace projection {
   class shader {
     char *src;
     std::string path;
-    GLenum shader_type;
+    GLenum gl_shader_type;
+    GLuint gl_shader;
+    void load();
+    void read_source();
+    void compile_shader();
+    void unload();
   public:
     explicit shader(std::string path, GLenum shader_type);
     ~shader();
