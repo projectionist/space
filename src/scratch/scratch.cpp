@@ -27,8 +27,7 @@ namespace scratch {
     glAttachShader(gl_program, vertex_shader->get());
     glAttachShader(gl_program, fragment_shader->get());
 
-    // Bind vPosition to attribute 0
-    glBindAttribLocation(gl_program, 0, "vPosition");
+    glBindAttribLocation(gl_program, 0, "a_position");
 
     glLinkProgram(gl_program);
 
@@ -78,9 +77,10 @@ namespace scratch {
   {
     glUseProgram(gl_program);
 
-    GLfloat vVertices[] = {  0.0f,  0.5f, 0.0f,
-                            -0.5f, -0.5f, 0.0f,
-                             0.5f, -0.5f, 0.0f };
+    GLfloat vertices[] = { -0.5f, -0.5f, 0.0f,
+                           -0.5f,  0.5f, 0.0f,
+                            0.5f, -0.5f, 0.0f,
+                            0.5f,  0.5f, 0.0f };
 
     // Set the viewport
     glViewport(0, 0, width, height);
@@ -89,9 +89,12 @@ namespace scratch {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Load the vertex data
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
     glEnableVertexAttribArray(0);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    // Load the vertex data
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
+    // glEnableVertexAttribArray(0);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   }
 }
