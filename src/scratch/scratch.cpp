@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <stdexcept>
+#include <iostream>
 #include <scratch/scratch.hpp>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -75,44 +76,61 @@ namespace scratch {
 
   vector<GLfloat> scratch::bars()
   {
-    // const int bar_count = 16;
-    // bar_count = 16;
-    // vert_count = bar_count * 4;
+    vector<GLfloat> vertices;
 
-    // bar, gap, bar, gap etc.
-    // GLfloat bars[bar_count] =
-    // [ 0.2841398731256567, 0.056827974625131346,
-    //   0.11365594925026269, 0.056827974625131346,
-    //   0.056827974625131346, 0.056827974625131346,
-    //   0.03342822036772432, 0.056827974625131346,
-    //   0.021856913317358208, 0.056827974625131346,
-    //   0.01535891206084631, 0.056827974625131346,
-    //   0.011365594925026269, 0.056827974625131346,
-    //   0.008742765326943285, 0.056827974625131346 ]
+    const int steps = 16; // twice the number of bars (bar, gap...)
+    // normalized description of bar heights and gap heights
+    //bar, gap, bar, gap etc.
+    GLfloat description[steps] =
+    { 0.2841398731256567, 0.056827974625131346,
+      0.11365594925026269, 0.056827974625131346,
+      0.056827974625131346, 0.056827974625131346,
+      0.03342822036772432, 0.056827974625131346,
+      0.021856913317358208, 0.056827974625131346,
+      0.01535891206084631, 0.056827974625131346,
+      0.011365594925026269, 0.056827974625131346,
+      0.008742765326943285, 0.056827974625131346 };
 
-    // GLfloat vertices[] = { -0.5f, -0.5f, 0.0f,
-    //                        -0.5f,  0.5f, 0.0f,
-    //                         0.5f, -0.5f, 0.0f,
-    //                         0.5f,  0.5f, 0.0f };
+    GLfloat y = 1.0f;
 
-    // bar_count = 1;
-    // vert_count = 4;
+    for(int bar_idx = 0, step_idx = 1; bar_idx < steps; bar_idx += 2, step_idx += 2) {
+      GLfloat height = description[bar_idx ] * 2;
+      GLfloat gap    = description[step_idx] * 2;
 
-    vector<GLfloat> vert_vec = { -0.5f, -0.5f, 0.0f,
-                                 -0.5f,  0.5f, 0.0f,
-                                  0.5f, -0.5f, 0.0f,
-                                  0.5f,  0.5f, 0.0f };
+      // GL_TRIANGLE_STRIP
 
-    return vert_vec;
+      // top left
+      vertices.push_back(-1.0f);
+      vertices.push_back(y);
+      vertices.push_back(0.0f);
+
+      // bottom left
+      vertices.push_back(-1.0f);
+      vertices.push_back(y - height);
+      vertices.push_back(0.0f);
+
+      // top right
+      vertices.push_back(1.0f);
+      vertices.push_back(y);
+      vertices.push_back(0.0f);
+
+      // bottom right
+      vertices.push_back(1.0f);
+      vertices.push_back(y - height);
+      vertices.push_back(0.0f);
+
+      y -= height + gap;
+    }
+
+    return vertices;
   }
 
   void scratch::draw(int width, int height, uint32_t time)
   {
     glUseProgram(gl_program);
 
-    auto verts_vec = bars();
-
-    GLfloat *vertices = &verts_vec[0];
+    auto vert_vector = bars();
+    GLfloat *vertices = &vert_vector[0];
 
     // Set the viewport
     glViewport(0, 0, width, height);
@@ -128,9 +146,8 @@ namespace scratch {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
     glEnableVertexAttribArray(0);
 
-    // Load the vertex data
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
-    // glEnableVertexAttribArray(0);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    for (int i = 0; i < vert_vector.size() / 3; i += 4) {
+      glDrawArrays(GL_TRIANGLE_STRIP, i, 4);
+    }
   }
 }
