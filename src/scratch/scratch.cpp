@@ -73,20 +73,56 @@ namespace scratch {
     draw(width, height, time);
   }
 
+  vector<GLfloat> scratch::bars()
+  {
+    // const int bar_count = 16;
+    // bar_count = 16;
+    // vert_count = bar_count * 4;
+
+    // bar, gap, bar, gap etc.
+    // GLfloat bars[bar_count] =
+    // [ 0.2841398731256567, 0.056827974625131346,
+    //   0.11365594925026269, 0.056827974625131346,
+    //   0.056827974625131346, 0.056827974625131346,
+    //   0.03342822036772432, 0.056827974625131346,
+    //   0.021856913317358208, 0.056827974625131346,
+    //   0.01535891206084631, 0.056827974625131346,
+    //   0.011365594925026269, 0.056827974625131346,
+    //   0.008742765326943285, 0.056827974625131346 ]
+
+    // GLfloat vertices[] = { -0.5f, -0.5f, 0.0f,
+    //                        -0.5f,  0.5f, 0.0f,
+    //                         0.5f, -0.5f, 0.0f,
+    //                         0.5f,  0.5f, 0.0f };
+
+    // bar_count = 1;
+    // vert_count = 4;
+
+    vector<GLfloat> vert_vec = { -0.5f, -0.5f, 0.0f,
+                                 -0.5f,  0.5f, 0.0f,
+                                  0.5f, -0.5f, 0.0f,
+                                  0.5f,  0.5f, 0.0f };
+
+    return vert_vec;
+  }
+
   void scratch::draw(int width, int height, uint32_t time)
   {
     glUseProgram(gl_program);
 
-    GLfloat vertices[] = { -0.5f, -0.5f, 0.0f,
-                           -0.5f,  0.5f, 0.0f,
-                            0.5f, -0.5f, 0.0f,
-                            0.5f,  0.5f, 0.0f };
+    auto verts_vec = bars();
+
+    GLfloat *vertices = &verts_vec[0];
 
     // Set the viewport
     glViewport(0, 0, width, height);
 
     // Clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // enable alpha blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Load the vertex data
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
