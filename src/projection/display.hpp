@@ -5,7 +5,7 @@
 #include <wayland-egl.h>
 #include <EGL/egl.h>
 
-#include <scratch/scratch.hpp>
+#include <projection/drawing.hpp>
 
 namespace projection {
   struct display {
@@ -32,6 +32,6 @@ namespace projection {
     struct wl_shell_surface *shell_surface;
     EGLSurface egl_surface;
     struct wl_callback *callback;
-    std::shared_ptr<scratch::scratch> drawing;
+    std::shared_ptr<projection::drawing> drawing;
   };
 }

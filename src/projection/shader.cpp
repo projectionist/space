@@ -1,7 +1,6 @@
 #include <projection/shader.hpp>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 #include <stdexcept>
 #include <cstring>
 #include <cassert>

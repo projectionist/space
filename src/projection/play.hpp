@@ -11,17 +11,17 @@
 
 #include <projection/display.hpp>
 
-#include <scratch/scratch.hpp>
+#include <projection/drawing.hpp>
 
 using namespace std;
 
 namespace projection {
 
-  void play(shared_ptr<scratch::scratch> s) {
+  void play(shared_ptr<projection::drawing> drawing) {
     struct display *display = (struct display *) malloc(sizeof(struct display));
     assert(display);
 
-    display->drawing = s;
+    display->drawing = drawing;
 
     display->display = wl_display_connect(NULL);
     assert(display->display);
@@ -32,7 +32,7 @@ namespace projection {
 
     init_egl(display);
     create_surface(display);
-    s->initialize();
+    drawing->setup();
 
     int ret = 0;
     while (!display->stop_flag) {

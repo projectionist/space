@@ -31,7 +31,7 @@ namespace projection {
     if (!display->configured)
       return;
 
-    display->drawing->redraw(display->geometry.width, display->geometry.height, time);
+    display->drawing->draw(display->geometry.width, display->geometry.height, time);
 
     // if (display->opaque || display->fullscreen) {
     region = wl_compositor_create_region(display->compositor);
