@@ -1,7 +1,6 @@
 # README
 
-A C++ GLESv2 scratch project providing a GLESv2 drawing context for projections.
-
+An empty C++ Open GL ES 2.0 scratch project providing drawing context for projections.
 
 
 # Acknowledgments
