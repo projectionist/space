@@ -1,15 +1,23 @@
 default: main
 
-.PHONY: main clean bindir
+.PHONY: main clean flags bindir
 
-CFLAGS=$(shell pkg-config wayland-client wayland-egl wayland-cursor egl glesv2 libdrm --cflags --libs)
+PKG_CONFIG_PATH="$(shell pwd)"
+CFLAGS=$(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --cflags scratch)
 SOURCES=$(wildcard src/**/*.cpp src/*.cpp)
+OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
 
-main: bindir $(SOURCES)
-	$(CXX) -std=c++14 -pthread -pedantic -Wall -Wextra -O3 -Isrc -D_X_OPEN_SOURCE=700 $(CFLAGS) $(SOURCES) -o bin/main
+main: bindir $(OBJECTS)
+	$(CXX) -o bin/main -D_X_OPEN_SOURCE=700 $(OBJECTS) $(CFLAGS)
+
+%.o: %.cpp
+	$(CXX) -c -D_X_OPEN_SOURCE=700 $(CFLAGS) $< -o $@
+
+flags:
+	@echo $(CFLAGS)
 
 bindir:
 	mkdir -p bin
 
 clean:
-	rm -f bin/*
+	rm -f bin/* $(OBJECTS)

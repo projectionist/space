@@ -1,1 +1,8 @@
-main
+# ignore binaries
+bin/*
+
+# ignore object files
+*.o
+
+# ignore OS X attribute files
+.DS_Store

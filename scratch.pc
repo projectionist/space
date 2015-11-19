@@ -1,0 +1,9 @@
+Name: scratch
+Description: Projectionist Scratch Project
+Version: 0.1.0
+Requires: wayland-client wayland-egl wayland-cursor egl glesv2 libdrm
+Requires.private:
+Conflicts:
+Libs:
+Libs.private:
+Cflags: -std=c++14 -pthread -pedantic -Wall -Wextra -O3 -Isrc
