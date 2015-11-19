@@ -1,8 +1,11 @@
-#include <scratch/scratch.hpp>
+#include <cmath>
+
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
 #include <projection/shader.hpp>
+
+#include <scratch/scratch.hpp>
 
 using namespace std;
 
@@ -29,11 +32,19 @@ namespace scratch {
     glUseProgram(program);
   }
 
+  void scratch::update()
+  {
+
+  }
+
   void scratch::draw()
   {
+    update();
+
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    GLfloat vertices[0];
+    double integral;
+    GLfloat progress = modf(elapsed(), &integral);
 
     // Set the viewport
     glViewport(0, 0, width(), height());
@@ -45,11 +56,12 @@ namespace scratch {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto a_pos_location = glGetAttribLocation(program, "a_position");
-    // Load the vertex data
-    glVertexAttribPointer(a_pos_location, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-    glEnableVertexAttribArray(a_pos_location);
+    auto a_progress = glGetAttribLocation(program, "a_progress");
 
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 0);
+    // Load the vertex data
+    glVertexAttribPointer(a_progress, 1, GL_FLOAT, GL_FALSE, 0, &progress);
+    glEnableVertexAttribArray(a_progress);
+
+    glDrawArrays(GL_POINTS, 0, 1);
   }
 }

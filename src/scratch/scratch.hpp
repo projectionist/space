@@ -8,13 +8,16 @@
 
 #include <GLES2/gl2.h>
 
+#include <scratch/particle.hpp>
 
 namespace scratch {
   class scratch : public projection::drawing {
     std::unique_ptr<projection::program_helper> program_helper;
     GLuint program;
+    particle p0;
   public:
     void setup();
+    void update();
     void draw();
     scratch() {};
   };
