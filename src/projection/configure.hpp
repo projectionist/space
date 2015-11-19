@@ -2,7 +2,8 @@
 #include <projection/redraw.hpp>
 
 namespace projection {
-  void configure_callback(void *data, struct wl_callback *callback, uint32_t  time)
+
+  void configure_callback(void *data, struct wl_callback *callback, uint32_t time)
   {
     struct display *display = (struct display *)data;
 

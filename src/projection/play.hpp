@@ -32,7 +32,6 @@ namespace projection {
 
     init_egl(display);
     create_surface(display);
-    drawing->setup();
 
     int ret = 0;
     while (!display->stop_flag) {

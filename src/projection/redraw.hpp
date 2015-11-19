@@ -1,22 +1,23 @@
 #pragma once
 
-#include <cstdio>
-#include <cstdlib>
+#include <cassert>
+
+#include <wayland-client.h>
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
 
 #include <projection/display.hpp>
-#include <EGL/egl.h>
-#include <GLES2/gl2.h>
 
 namespace projection {
 
-  void redraw(void *data, struct wl_callback *callback, uint32_t time);
+  void redraw(void *data, struct wl_callback *callback, uint32_t);
 
   const struct wl_callback_listener frame_listener = {
     redraw
   };
 
 
-  void redraw(void *data, struct wl_callback *callback, uint32_t time)
+  void redraw(void *data, struct wl_callback *callback, uint32_t)
   {
     struct display *display = (struct display *)data;
 
@@ -31,9 +32,12 @@ namespace projection {
     if (!display->configured)
       return;
 
-    display->drawing->draw(display->geometry.width, display->geometry.height, time);
+    if (!display->drawing->initialized()) {
+      display->drawing->initialize(display->geometry.width, display->geometry.height);
+    }
 
-    // if (display->opaque || display->fullscreen) {
+    display->drawing->redraw();
+
     region = wl_compositor_create_region(display->compositor);
     wl_region_add(region, 0, 0,
             display->geometry.width,

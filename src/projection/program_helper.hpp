@@ -5,13 +5,13 @@
 #include <projection/shader.hpp>
 
 namespace projection {
-  class program {
-    GLuint _gl_program;
+  class program_helper {
+    GLuint gl_program;
     std::unique_ptr<projection::shader> vertex_shader;
     std::unique_ptr<projection::shader> fragment_shader;
   public:
-    explicit program(std::string vertex_shader_path, std::string fragment_shader_path);
+    explicit program_helper(std::string vertex_shader_path, std::string fragment_shader_path);
     void link();
-    GLuint gl_program() { return _gl_program; };
+    GLuint program() { return gl_program; };
   };
 }

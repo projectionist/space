@@ -10,8 +10,8 @@
 namespace projection {
   struct display {
     struct wl_display *display;
-    bool configured;
-    bool stop_flag;
+    bool configured = false;
+    bool stop_flag = false;
     struct wl_registry *registry;
     struct wl_compositor *compositor;
     struct wl_shell *shell;
