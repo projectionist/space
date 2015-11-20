@@ -5,8 +5,7 @@
 namespace scratch {
   class particle {
   public:
-    GLfloat x;
-    GLfloat y;
+    GLfloat offset;
     GLfloat u;
     explicit particle();
     void update(GLfloat elapsed);
