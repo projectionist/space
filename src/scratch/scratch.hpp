@@ -14,6 +14,7 @@ namespace scratch {
   class scratch : public projection::drawing {
     std::unique_ptr<projection::program_helper> program_helper;
     GLuint program;
+    GLuint vbos[1];
     particle p0;
   public:
     void setup();

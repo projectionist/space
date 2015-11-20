@@ -5,9 +5,10 @@
 namespace scratch {
   class particle {
   public:
-    GLfloat lifespan = 0.0;
-    GLfloat spawned_at = 0.0;
-    GLfloat angle = 0.0;
-    //explicit particle(const GLfloat spawned_at) : spawned_at(spawned_at) {}
+    GLfloat x;
+    GLfloat y;
+    GLfloat u;
+    explicit particle();
+    void update(GLfloat elapsed);
   };
 }

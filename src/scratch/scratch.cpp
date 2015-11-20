@@ -30,11 +30,13 @@ namespace scratch {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(program);
+
+    glGenBuffers(1, vbos);
   }
 
   void scratch::update()
   {
-
+    p0.update(elapsed());
   }
 
   void scratch::draw()
@@ -43,8 +45,9 @@ namespace scratch {
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    double integral;
-    GLfloat progress = modf(elapsed(), &integral);
+    GLfloat vertices[1] = {
+      p0.u
+    };
 
     // Set the viewport
     glViewport(0, 0, width(), height());
@@ -56,11 +59,14 @@ namespace scratch {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto a_progress = glGetAttribLocation(program, "a_progress");
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2, vertices, GL_STATIC_DRAW);
+
+    auto a_u = glGetAttribLocation(program, "a_u");
 
     // Load the vertex data
-    glVertexAttribPointer(a_progress, 1, GL_FLOAT, GL_FALSE, 0, &progress);
-    glEnableVertexAttribArray(a_progress);
+    glVertexAttribPointer(a_u, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(a_u);
 
     glDrawArrays(GL_POINTS, 0, 1);
   }
