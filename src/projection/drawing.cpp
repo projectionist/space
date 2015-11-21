@@ -6,7 +6,7 @@ using namespace std::chrono;
 namespace projection {
   drawing::drawing() {}
 
-  void drawing::initialize(int width, int height)
+  void drawing::initialize(float width, float height)
   {
     start_time = std::chrono::high_resolution_clock::now();
     _w = width;
