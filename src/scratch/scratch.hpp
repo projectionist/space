@@ -20,11 +20,12 @@ namespace scratch {
     std::unique_ptr<projection::program_helper> program_helper;
     GLuint program;
     GLuint vbos[VBO_COUNT];
-    std::vector<particle> particles{10000};
+    std::vector<particle> particles;
   public:
     void setup();
     void update();
     void draw();
+    void spawn();
     scratch() {  };
   };
 }

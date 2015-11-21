@@ -5,16 +5,18 @@
 #include <scratch/particle.hpp>
 
 namespace scratch {
-  particle::particle()
+  const GLfloat particle::lifespan = 10.0;
+
+  particle::particle(const GLfloat spawned)
   {
-    offset = ((float) rand()) / ((float) RAND_MAX);
+    this->spawned = spawned;
+    this->offset = ((float) rand()) / ((float) RAND_MAX);
   }
 
   void particle::update(GLfloat elapsed)
   {
-    double integral;
-    double fraction = modf(elapsed, &integral);
+    auto age = elapsed - spawned;
 
-    u = fraction;
+    u = age / lifespan;
   }
 }

@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cassert>
+#include <cstdlib>
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -33,16 +34,20 @@ namespace scratch {
     glUseProgram(program);
 
     glGenBuffers(VBO_COUNT, vbos);
+  }
 
-    vector<GLfloat> offsets;
-    for(auto & p: particles) offsets.push_back(p.offset);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[OFFSET_VBO]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * offsets.size(), &offsets[0], GL_STATIC_DRAW);
+  void scratch::spawn()
+  {
+    for(int i = 0; i < 1000 && particles.size() < 1000000; i++) {
+      particle p(elapsed());
+      particles.push_back(p);
+    }
   }
 
   void scratch::update()
   {
+    spawn();
+
     for(auto & p : particles) {
       p.update(elapsed());
     }
@@ -65,12 +70,15 @@ namespace scratch {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     vector<GLfloat> progressions;
+    vector<GLfloat> offsets;
 
     for(auto & p : particles) {
       progressions.push_back(p.u);
+      offsets.push_back(p.offset);
     }
 
     GLfloat *progressions_ptr = &progressions[0];
+    GLfloat *offsets_ptr = &offsets[0];
 
     // Load the progression data
     glBindBuffer(GL_ARRAY_BUFFER, vbos[U_VBO]);
@@ -86,9 +94,10 @@ namespace scratch {
     glEnableVertexAttribArray(a_u);
     assert(glGetError() == GL_NO_ERROR);
 
+    // buffer vertex angle offsets
     glBindBuffer(GL_ARRAY_BUFFER, vbos[OFFSET_VBO]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * offsets.size(), offsets_ptr, GL_STATIC_DRAW);
 
-    // enable the offsets buffer
     auto a_offset = glGetAttribLocation(program, "a_offset");
     assert(a_offset >= 0);
 

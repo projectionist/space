@@ -4,7 +4,7 @@ attribute float a_offset;
 
 void main()
 {
-  float r = a_u;
+  float r = a_u / 2.0;
   float phi = ((3.0 * 2.0 * a_u) + a_offset) * M_PI;
 
   vec2 xy = r * vec2(cos(phi), sin(phi));
