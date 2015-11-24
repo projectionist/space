@@ -23,17 +23,27 @@ OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
 BINDIR=bin
 MAIN=bin/main
 
+# automatically rebuilding when a source or any of its dependencies change
+DEPFLAGS=-MT $@ -MMD -MP -MF $*.Td
+DEPFILES=$(wildcard src/**/*.d src/*.d) $(wildcard src/**/*.Td src/*.Td)
+POSTCOMPILE=mv -f $*.Td $*.d
+
 default: $(MAIN)
 .PHONY: clean $(BINDIR)
 
 $(MAIN): $(OBJECTS) | $(BINDIR)
 	$(CXX) -o $(MAIN) $(OBJECTS) $(CFLAGS)
 
-%.o: %.cpp
-	$(CXX) -c $(CFLAGS) $< -o $@
+%.o: %.cpp %.d
+	$(CXX) -c $(DEPFLAGS) $(CFLAGS) $< -o $@
+	$(POSTCOMPILE)
+
+%.d: ;
 
 $(BINDIR):
-	mkdir -p $(BINDIR)
+	@mkdir -p $(BINDIR)
 
 clean:
-	rm -f $(BINDIR)/* $(OBJECTS) $(PRECOMPILED_HEADERS)
+	rm -f $(BINDIR)/* $(OBJECTS) $(DEPFILES)
+
+-include $(patsubst %,%.d,$(basename $(SOURCES)))
