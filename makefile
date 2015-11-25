@@ -4,9 +4,7 @@
 #
 # * Compiler and linker flags collected with pkg-config
 # * source files (.c, .cpp) precompiled to object files (.o)
-# * sources are rebuilt when header dependencies change
-# * headers are precompiled and recompiled automatically
-#
+# * object files are rebuilt when source or dependencies change
 #
 # Reading material for makefiles
 #
