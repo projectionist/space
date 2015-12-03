@@ -12,6 +12,7 @@
 # * http://people.freedesktop.org/~dbn/pkg-config-guide.html
 # * http://make.mad-scientist.net/papers/rules-of-makefiles/
 # * http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/#tldr
+# * http://eigenstate.org/notes/makefiles	
 #
 
 PKG_CONFIG_PATH="$(shell pwd)"
@@ -28,6 +29,8 @@ POSTCOMPILE=mv -f $*.Td $*.d
 
 default: $(MAIN)
 .PHONY: clean $(BINDIR)
+.SUFFIXES:
+.SECONDARY:
 
 $(MAIN): $(OBJECTS) | $(BINDIR)
 	$(CXX) -o $(MAIN) $(OBJECTS) $(CFLAGS)
