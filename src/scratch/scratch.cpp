@@ -21,90 +21,41 @@ namespace scratch {
       if you get attribute/uniform locations (glGetAttribLocation), do it after linking
     */
 
+    glDepthMask(true);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
     glEnable(GL_STENCIL_TEST);
-    // enable alpha blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glUseProgram(program);
-
-    generate_bars();
-  }
-
-  void scratch::generate_bars()
-  {
-    vector<GLfloat> vertices;
-
-    const int steps = 16; // twice the number of bars (bar, gap...)
-    // normalized description of bar heights and gap heights
-    //bar, gap, bar, gap etc.
-    GLfloat description[steps] =
-    { 0.2841398731256567, 0.056827974625131346,
-      0.11365594925026269, 0.056827974625131346,
-      0.056827974625131346, 0.056827974625131346,
-      0.03342822036772432, 0.056827974625131346,
-      0.021856913317358208, 0.056827974625131346,
-      0.01535891206084631, 0.056827974625131346,
-      0.011365594925026269, 0.056827974625131346,
-      0.008742765326943285, 0.056827974625131346 };
-
-    GLfloat y = 1.0f;
-
-    for(int bar_idx = 0, step_idx = 1; bar_idx < steps; bar_idx += 2, step_idx += 2) {
-      GLfloat height = description[bar_idx ] * 2;
-      GLfloat gap    = description[step_idx] * 2;
-
-      // GL_TRIANGLE_STRIP
-
-      // top left
-      vertices.push_back(-1.0f);
-      vertices.push_back(y);
-      vertices.push_back(0.0f);
-
-      // bottom left
-      vertices.push_back(-1.0f);
-      vertices.push_back(y - height);
-      vertices.push_back(0.0f);
-
-      // top right
-      vertices.push_back(1.0f);
-      vertices.push_back(y);
-      vertices.push_back(0.0f);
-
-      // bottom right
-      vertices.push_back(1.0f);
-      vertices.push_back(y - height);
-      vertices.push_back(0.0f);
-
-      y -= height + gap;
-    }
-
-    bars = vertices;
+    glGenBuffers(1, vbos);
   }
 
   void scratch::draw()
   {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    GLfloat *vertices = &bars[0];
+    const GLfloat vertices[] = {
+      -0.50f, 0.50f,
+      -0.25f,-0.50f,
+       0.50f, 0.50f,
+       0.25f,-0.50f
+    };
 
-    // Set the viewport
     glViewport(0, 0, width(), height());
 
-    // Clear the color buffer
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // enable alpha blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    auto a_pos_location = glGetAttribLocation(program, "a_position");
-    // Load the vertex data
-    glVertexAttribPointer(a_pos_location, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-    glEnableVertexAttribArray(a_pos_location);
+    auto a_position = glGetAttribLocation(program, "a_position");
 
-    for (unsigned int i = 0; i < bars.size() / 3; i += 4) {
-      glDrawArrays(GL_TRIANGLE_STRIP, i, 4);
-    }
+    glVertexAttribPointer(a_position, 2, GL_FLOAT, GL_FALSE, 0, (const void *)0);
+    glEnableVertexAttribArray(a_position);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   }
 }

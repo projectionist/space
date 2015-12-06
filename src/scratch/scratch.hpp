@@ -13,8 +13,7 @@ namespace scratch {
   class scratch : public projection::drawing {
     std::unique_ptr<projection::program_helper> program_helper;
     GLuint program;
-    std::vector<GLfloat> bars;
-    void generate_bars();
+    GLuint vbos[1];
   public:
     void setup();
     void draw();
