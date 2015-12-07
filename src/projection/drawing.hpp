@@ -1,6 +1,10 @@
 #pragma once
 
 #include <chrono>
+#include <cassert>
+#include <iostream>
+
+#define check_gl_error() { const auto gl_error_code = glGetError(); if (gl_error_code != GL_NO_ERROR) { cerr << "GL_ERROR: " << gl_error_code_name(gl_error_code) << endl; assert(gl_error_code == GL_NO_ERROR); } }
 
 namespace projection {
   class drawing {
@@ -25,5 +29,7 @@ namespace projection {
 
     void redraw();
     virtual void draw() =0;
+
+    static std::string gl_error_code_name(const unsigned int error_code);
   };
 }

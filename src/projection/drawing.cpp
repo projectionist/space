@@ -1,3 +1,8 @@
+#include <stdexcept>
+#include <vector>
+
+#include <GLES2/gl2.h>
+
 #include <projection/drawing.hpp>
 
 using namespace std;
@@ -24,5 +29,33 @@ namespace projection {
     _frames++;
 
     draw();
+  }
+
+  /**
+    returns the name of the open gl error by reversing the definitions
+    from GLES2/gl2.h
+
+    #define GL_NO_ERROR                       0
+    #define GL_INVALID_ENUM                   0x0500
+    #define GL_INVALID_VALUE                  0x0501
+    #define GL_INVALID_OPERATION              0x0502
+    #define GL_OUT_OF_MEMORY                  0x0505
+  */
+  std::string drawing::gl_error_code_name(const unsigned int error_code)
+  {
+    switch (error_code) {
+      case GL_NO_ERROR:
+        return "GL_NO_ERROR";
+      case GL_INVALID_ENUM:
+        return "GL_INVALID_ENUM";
+      case GL_INVALID_VALUE:
+        return "GL_INVALID_VALUE";
+      case GL_INVALID_OPERATION:
+        return "GL_INVALID_OPERATION";
+      case GL_OUT_OF_MEMORY:
+        return "GL_OUT_OF_MEMORY";
+      default:
+        return "None GL error code: " + error_code;
+    }
   }
 }
