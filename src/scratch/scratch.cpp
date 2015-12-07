@@ -7,6 +7,7 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <projection/shader.hpp>
@@ -30,112 +31,82 @@ namespace scratch {
       if you get attribute/uniform locations (glGetAttribLocation), do it after linking
     */
 
+    glDepthMask(true);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
     glEnable(GL_STENCIL_TEST);
-    // enable alpha blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glUseProgram(program);
 
     glGenBuffers(NUM_VBOS, vbos);
+
+    spawn();
   }
 
   void scratch::spawn()
   {
-    for(int i = 0; particles.size() < 1; i++) {
+    for(int i = 0; particles->size() < 10000; i++) {
       particle p(elapsed());
-      particles.push_back(p);
+      particles->push_back(p);
     }
   }
 
   void scratch::update()
   {
-    spawn();
-
-    for(auto & p : particles) {
+    for(auto & p : *particles) {
       p.update(elapsed());
     }
   }
 
   void scratch::draw()
   {
+    glViewport(0, 0, width(), height());
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     update();
 
-    // Set the viewport
-    glViewport(0, 0, width(), height());
+    auto points = make_unique<vector<GLfloat>>();
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-    // Clear the color buffer
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // enable alpha blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    vector<GLfloat> triangles;
-    // vector<GLfloat> offsets;
-
-    for(auto & p : particles) {
-      triangles.push_back(0.0f);
-      triangles.push_back(1.0f);
-      triangles.push_back(p.u);
-
-      triangles.push_back(-1.0f);
-      triangles.push_back(-1.0f);
-      triangles.push_back(p.u);
-
-      triangles.push_back(1.0f);
-      triangles.push_back(-1.0f);
-      triangles.push_back(p.u);
+    for(auto & p : *particles) {
+      points->push_back(p.x);
+      points->push_back(p.y);
+      points->push_back(p.z);
     }
 
-    GLfloat *triangles_ptr = &triangles[0];
-    //GLfloat *offsets_ptr = &offsets[0];
+    auto points_ptr = points->data();
 
-    // Load the progression data
+    // Load the data
     glBindBuffer(GL_ARRAY_BUFFER, vbos[POSITION_VBO]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * triangles.size(), triangles_ptr, GL_STATIC_DRAW);
-    gl_check_error();
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * points->size(), points_ptr, GL_STATIC_DRAW);
+    check_gl_error();
 
     auto a_position = glGetAttribLocation(program, "a_position");
-    assert(a_position >= 0);
+    check_gl_error();
 
-    glVertexAttribPointer(a_position, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    gl_check_error();
+    glVertexAttribPointer(a_position, 3, GL_FLOAT, GL_FALSE, 0, (const void *) 0);
+    check_gl_error();
 
     glEnableVertexAttribArray(a_position);
-    gl_check_error();
+    check_gl_error();
 
-    // buffer vertex angle offsets
-    // glBindBuffer(GL_ARRAY_BUFFER, vbos[OFFSET_VBO]);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * offsets.size(), offsets_ptr, GL_STATIC_DRAW);
-    //
-    // auto a_offset = glGetAttribLocation(program, "a_offset");
-    // assert(a_offset >= 0);
-    //
-    // glVertexAttribPointer(a_offset, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    // assert(glGetError() == GL_NO_ERROR);
-    //
-    // glEnableVertexAttribArray(a_offset);
-    // assert(glGetError() == GL_NO_ERROR);
-
-    // model view projection processing
-    glm::mat4 projection = glm::perspectiveFov(glm::radians(60.0f),
-      width(), height(), 0.1f, 100.0f);
+    // world camera and projection positioning
+    glm::mat4 model = glm::translate(glm::vec3(-0.5f));
 
     glm::mat4 view = glm::lookAt(
-      glm::vec3(0.0,0.0,-1.0), // Camera in World Space
-      glm::vec3(0,0,0), // looking at the origin
-      glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+      glm::vec3(0.0,0.0,0.0), // Camera in World Space
+      glm::vec3(0,0,1.0),        // Looking at the origin
+      glm::vec3(0,1,0)         // Head is up
     );
 
-    glm::mat4 model = glm::scale(glm::vec3(0.1, 0.1, 0.1));
+    glm::mat4 projection = glm::perspectiveFov(glm::radians(92.0f),
+      width(), height(), 0.1f, 100.0f);
 
-    glm::mat4 u_mvp = projection * view * model;
+    glUniformMatrix4fv(glGetUniformLocation(program, "u_mvp"), 1, GL_FALSE, glm::value_ptr(projection * view * model));
 
-    glUniformMatrix4fv(glGetUniformLocation(program, "u_mvp"), 1, GL_FALSE, glm::value_ptr(u_mvp));
-
-    glDrawArrays(GL_TRIANGLES, 0, particles.size());
+    glDrawArrays(GL_POINTS, 0, particles->size());
   }
 }

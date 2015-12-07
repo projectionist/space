@@ -1,6 +1,6 @@
 #define M_PI 3.1415926
-attribute vec4 a_position;
 
+attribute vec4 a_position;
 uniform mat4 u_mvp;
 
 void main()
