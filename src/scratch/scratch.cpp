@@ -1,9 +1,13 @@
 #include <cmath>
-#include <cassert>
 #include <cstdlib>
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <projection/shader.hpp>
 
@@ -33,12 +37,12 @@ namespace scratch {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(program);
 
-    glGenBuffers(VBO_COUNT, vbos);
+    glGenBuffers(NUM_VBOS, vbos);
   }
 
   void scratch::spawn()
   {
-    for(int i = 0; i < 1000 && particles.size() < 1000000; i++) {
+    for(int i = 0; particles.size() < 1; i++) {
       particle p(elapsed());
       particles.push_back(p);
     }
@@ -69,44 +73,69 @@ namespace scratch {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    vector<GLfloat> progressions;
-    vector<GLfloat> offsets;
+    vector<GLfloat> triangles;
+    // vector<GLfloat> offsets;
 
     for(auto & p : particles) {
-      progressions.push_back(p.u);
-      offsets.push_back(p.offset);
+      triangles.push_back(0.0f);
+      triangles.push_back(1.0f);
+      triangles.push_back(p.u);
+
+      triangles.push_back(-1.0f);
+      triangles.push_back(-1.0f);
+      triangles.push_back(p.u);
+
+      triangles.push_back(1.0f);
+      triangles.push_back(-1.0f);
+      triangles.push_back(p.u);
     }
 
-    GLfloat *progressions_ptr = &progressions[0];
-    GLfloat *offsets_ptr = &offsets[0];
+    GLfloat *triangles_ptr = &triangles[0];
+    //GLfloat *offsets_ptr = &offsets[0];
 
     // Load the progression data
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[U_VBO]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * progressions.size(), progressions_ptr, GL_STATIC_DRAW);
-    assert(glGetError() == GL_NO_ERROR);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[POSITION_VBO]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * triangles.size(), triangles_ptr, GL_STATIC_DRAW);
+    gl_check_error();
 
-    auto a_u = glGetAttribLocation(program, "a_u");
-    assert(a_u >= 0);
+    auto a_position = glGetAttribLocation(program, "a_position");
+    assert(a_position >= 0);
 
-    glVertexAttribPointer(a_u, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    assert(glGetError() == GL_NO_ERROR);
+    glVertexAttribPointer(a_position, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    gl_check_error();
 
-    glEnableVertexAttribArray(a_u);
-    assert(glGetError() == GL_NO_ERROR);
+    glEnableVertexAttribArray(a_position);
+    gl_check_error();
 
     // buffer vertex angle offsets
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[OFFSET_VBO]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * offsets.size(), offsets_ptr, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ARRAY_BUFFER, vbos[OFFSET_VBO]);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * offsets.size(), offsets_ptr, GL_STATIC_DRAW);
+    //
+    // auto a_offset = glGetAttribLocation(program, "a_offset");
+    // assert(a_offset >= 0);
+    //
+    // glVertexAttribPointer(a_offset, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    // assert(glGetError() == GL_NO_ERROR);
+    //
+    // glEnableVertexAttribArray(a_offset);
+    // assert(glGetError() == GL_NO_ERROR);
 
-    auto a_offset = glGetAttribLocation(program, "a_offset");
-    assert(a_offset >= 0);
+    // model view projection processing
+    glm::mat4 projection = glm::perspectiveFov(glm::radians(60.0f),
+      width(), height(), 0.1f, 100.0f);
 
-    glVertexAttribPointer(a_offset, 1, GL_FLOAT, GL_FALSE, 0, 0);
-    assert(glGetError() == GL_NO_ERROR);
+    glm::mat4 view = glm::lookAt(
+      glm::vec3(0.0,0.0,-1.0), // Camera in World Space
+      glm::vec3(0,0,0), // looking at the origin
+      glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+    );
 
-    glEnableVertexAttribArray(a_offset);
-    assert(glGetError() == GL_NO_ERROR);
+    glm::mat4 model = glm::scale(glm::vec3(0.1, 0.1, 0.1));
 
-    glDrawArrays(GL_POINTS, 0, particles.size());
+    glm::mat4 u_mvp = projection * view * model;
+
+    glUniformMatrix4fv(glGetUniformLocation(program, "u_mvp"), 1, GL_FALSE, glm::value_ptr(u_mvp));
+
+    glDrawArrays(GL_TRIANGLES, 0, particles.size());
   }
 }
