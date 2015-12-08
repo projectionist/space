@@ -4,5 +4,9 @@ bin/*
 # ignore object files
 *.o
 
+# ignore dependency files
+*.Td
+*.d
+
 # ignore OS X attribute files
 .DS_Store

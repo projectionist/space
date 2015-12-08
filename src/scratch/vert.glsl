@@ -1,6 +1,9 @@
-attribute float a_progress;
+#define M_PI 3.1415926
+
+attribute vec4 a_position;
+uniform mat4 u_mvp;
 
 void main()
 {
-  gl_Position = vec4(a_progress, a_progress, 0.0, 1.0);
+  gl_Position = u_mvp * a_position;
 }
