@@ -16,7 +16,7 @@
 #
 
 PKG_CONFIG_PATH="$(shell pwd)"
-PKG_CONFIG_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --cflags scratch
+PKG_CONFIG_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --cflags space
 CFLAGS=$(shell $(PKG_CONFIG_CMD))
 SOURCES=$(wildcard src/**/*.cpp src/*.cpp)
 OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
