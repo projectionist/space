@@ -6,3 +6,14 @@ CFLAGS+=$(shell $(PKG_CONFIG_CFLAGS_CMD))
 LDFLAGS+=$(shell $(PKG_CONFIG_LIBS_CMD))
 
 PLATFORM_SOURCES=$(wildcard platform/weston/**/*.cpp platform/weston/*.cpp)
+
+.PHONY: pkg-config
+
+$(MAIN): | pkg-config
+
+%.o: | pkg-config
+
+# check the pkg-config command returns successfully
+scratch.pc:
+	$(PKG_CONFIG_CFLAGS_CMD)
+	$(PKG_CONFIG_LIBS_CMD)

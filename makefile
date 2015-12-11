@@ -15,6 +15,9 @@
 # * http://eigenstate.org/notes/makefiles
 #
 
+BINDIR=bin
+MAIN=bin/main
+
 ifeq ($(PLATFORM_VARIANT),rpi2)
 include makefile.rpi.in
 else
@@ -23,8 +26,6 @@ endif
 
 SOURCES=$(wildcard src/**/*.cpp src/*.cpp) $(PLATFORM_SOURCES)
 OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
-BINDIR=bin
-MAIN=bin/main
 
 # automatically rebuilding when a source or any of its dependencies change
 DEPFLAGS=-MT $@ -MD -MP -MF $*.Td
@@ -32,14 +33,14 @@ DEPFILES=$(wildcard src/**/*.d src/*.d) $(wildcard src/**/*.Td src/*.Td)
 POSTCOMPILE=mv -f $*.Td $*.d
 
 default: $(MAIN)
-.PHONY: clean $(BINDIR) #pkg-config
+.PHONY: clean $(BINDIR)
 .SUFFIXES:
 .SECONDARY:
 
-$(MAIN): $(OBJECTS) | $(BINDIR) #pkg-config
+$(MAIN): $(OBJECTS) | $(BINDIR)
 	$(CXX) -o $(MAIN) $(OBJECTS) $(CFLAGS) $(LDFLAGS)
 
-%.o: %.cpp %.d #| pkg-config
+%.o: %.cpp %.d
 	$(CXX) -c $(DEPFLAGS) $(CFLAGS) $(LDFLAGS) $< -o $@
 	$(POSTCOMPILE)
 
@@ -47,10 +48,6 @@ $(MAIN): $(OBJECTS) | $(BINDIR) #pkg-config
 
 $(BINDIR):
 	@mkdir -p $(BINDIR)
-
-# check the pkg-config command returns successfully
-# pkg-config:
-# 	$(PKG_CONFIG_CFLAGS_CMD)
 
 clean:
 	rm -f $(BINDIR)/* $(OBJECTS) $(DEPFILES)
