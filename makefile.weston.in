@@ -1,0 +1,8 @@
+PKG_CONFIG_PATH="$(shell pwd)"
+PKG_CONFIG_CFLAGS_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --cflags scratch
+PKG_CONFIG_LIBS_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --libs scratch
+
+CFLAGS+=$(shell $(PKG_CONFIG_CFLAGS_CMD))
+LDFLAGS+=$(shell $(PKG_CONFIG_LIBS_CMD))
+
+PLATFORM_SOURCES=$(wildcard platform/weston/**/*.cpp platform/weston/*.cpp)
