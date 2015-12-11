@@ -1,7 +1,10 @@
 #pragma once
+
 #include <string>
 #include <memory>
+
 #include <GLES2/gl2.h>
+
 #include <projection/shader.hpp>
 
 namespace projection {
