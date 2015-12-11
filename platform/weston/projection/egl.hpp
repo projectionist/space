@@ -1,7 +1,8 @@
 #pragma once
 
 #include <EGL/egl.h>
-#include <projection/weston/display.hpp>
+
+#include "display.hpp"
 
 namespace projection {
   namespace weston {

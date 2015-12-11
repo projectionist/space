@@ -6,7 +6,7 @@
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
 
-#include <projection/weston/display.hpp>
+#include "display.hpp"
 
 namespace projection {
   namespace weston {

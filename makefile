@@ -15,10 +15,16 @@
 # * http://eigenstate.org/notes/makefiles
 #
 
+ifeq ($(PLATFORM_VARIANT),rpi2)
+include makefile.rpi.in
+else
+PLATFORM_SOURCES=$(wildcard platform/weston/**/*.cpp platform/weston/*.cpp)
+endif
+
 PKG_CONFIG_PATH="$(shell pwd)"
 PKG_CONFIG_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --cflags scratch
 CFLAGS=$(shell $(PKG_CONFIG_CMD))
-SOURCES=$(wildcard src/**/*.cpp src/*.cpp)
+SOURCES=$(wildcard src/**/*.cpp src/*.cpp) $(PLATFORM_SOURCES)
 OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
 BINDIR=bin
 MAIN=bin/main
@@ -32,6 +38,9 @@ default: $(MAIN)
 .PHONY: clean $(BINDIR) pkg-config
 .SUFFIXES:
 .SECONDARY:
+
+srcs:
+	@echo $(SOURCES)
 
 $(MAIN): $(OBJECTS) | $(BINDIR) pkg-config
 	$(CXX) -o $(MAIN) $(OBJECTS) $(CFLAGS)

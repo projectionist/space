@@ -1,6 +1,6 @@
 #pragma once
 
-#include <projection/weston/redraw.hpp>
+#include "redraw.hpp"
 
 namespace projection {
   namespace weston {

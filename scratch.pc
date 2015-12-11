@@ -1,6 +1,6 @@
 Name: scratch
 Description: Projectionist Scratch Project
-Version: 0.1.0
+Version: 0.1.1
 Requires: wayland-client wayland-egl wayland-cursor egl glesv2 libdrm
 Requires.private:
 Conflicts:

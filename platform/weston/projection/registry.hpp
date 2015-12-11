@@ -4,8 +4,8 @@
 
 #include <wayland-client.h>
 
-#include <projection/weston/display.hpp>
-#include <projection/weston/seat.hpp>
+#include "display.hpp"
+#include "seat.hpp"
 
 namespace projection {
   namespace weston {
