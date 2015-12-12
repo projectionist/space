@@ -1,6 +1,6 @@
 PKG_CONFIG_PATH="$(PLATFORM_PATH)"
-PKG_CONFIG_CFLAGS_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --cflags scratch
-PKG_CONFIG_LIBS_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --libs scratch
+PKG_CONFIG_CFLAGS_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --cflags projection
+PKG_CONFIG_LIBS_CMD=PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --libs projection
 
 CFLAGS+=$(shell $(PKG_CONFIG_CFLAGS_CMD))
 LDFLAGS+=$(shell $(PKG_CONFIG_LIBS_CMD))
