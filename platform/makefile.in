@@ -32,7 +32,7 @@ PLATFORM_PATH=$(shell pwd)/platform/$(PLATFORM_NAME)
 include $(PLATFORM_PATH)/makefile.in
 
 SOURCES+=$(wildcard src/**/*.cpp src/*.cpp)
-SOURCES+=$(wildcard include/**/*.cpp include/*.cpp)
+SOURCES+=$(wildcard include/**/*.cpp)
 SOURCES+=$(wildcard $(PLATFORM_PATH)/**/*.cpp $(PLATFORM_PATH)/*.cpp)
 
 OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
