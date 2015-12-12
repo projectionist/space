@@ -1,4 +1,4 @@
-Name: projection
+Name: projectionist-weston
 Description: Projection (weston) build package configuration
 Version: 0.1.1
 Requires: wayland-client wayland-egl wayland-cursor egl glesv2 libdrm
