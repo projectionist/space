@@ -3,21 +3,20 @@
 
 #include <wayland-client.h>
 
-#include <projection/egl.hpp>
-#include <projection/redraw.hpp>
-#include <projection/configure.hpp>
-#include <projection/surface.hpp>
-#include <projection/registry.hpp>
-
-#include <projection/display.hpp>
-
 #include <projection/drawing.hpp>
+#include <projection/play.hpp>
 
-using namespace std;
+#include "display.hpp"
+#include "egl.hpp"
+#include "redraw.hpp"
+#include "configure.hpp"
+#include "surface.hpp"
+#include "registry.hpp"
 
 namespace projection {
+  using namespace weston;
 
-  void play(shared_ptr<projection::drawing> drawing) {
+  void play(std::shared_ptr<projection::drawing> drawing) {
     struct display *display = (struct display *) malloc(sizeof(struct display));
     assert(display);
 

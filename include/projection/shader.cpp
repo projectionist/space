@@ -1,9 +1,10 @@
-#include <projection/shader.hpp>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <cstring>
 #include <cassert>
+
+#include <projection/shader.hpp>
 
 using namespace std;
 
