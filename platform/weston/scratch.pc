@@ -6,4 +6,4 @@ Requires.private:
 Conflicts:
 Libs:
 Libs.private:
-Cflags: -std=c++14 -pthread -pedantic -Wall -Wextra -O3 -D_X_OPEN_SOURCE=700 -Isrc
+Cflags: -D_X_OPEN_SOURCE=700
