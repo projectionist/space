@@ -1,8 +1,19 @@
 # README
 
-An empty C++ Open GL ES 2.0 scratch project providing drawing context for projections.
+An empty C++ Open GL ES 2.0 scratch project providing drawing context for projections.  
+Visit [http://projectionist.array.bz/projections](http://projectionist.array.bz/projections) for some example projections based on this project.
 
-## Folders
+## Usage
+
+The scratch project is developed to be built on a Debian VM or a Rapsberry PI as detail on the [tools page](http://projectionist.array.bz/tools) page of the project website.
+
+* check out the project by cloning the git repository
+* `cd` in to the project folder
+* run `make clean`. It is a good idea to run these when switching between different branches of the same repository.
+* run `make`
+* run `bin/main`. you should see a full screen, white trapezium on a black background.
+
+## Folder Structure
 
 ```
 root dir, run (e.g.) `make` here  .
@@ -19,16 +30,22 @@ the source for the projection     └── src
 
 ```
 
-* Vendor code which is not install as an operating system dependency
+* Vendor code is where we put depedencies which are not installed with the OS package manager
 * The platform directory lists routines for establishing a OpenGL ES 2.0 contexts
 * The source directory is the place to implement your projection
 
-## Platforms
+## Additional Platforms
 
 The build system targets raspberry pi as the end platform and a debian VM running Wayland (weston) as a development environment.
 
-There is a single platform-specific entry point: `projection::play(drawing)`.
-In the platform folder, `play.cpp` implement this methodm the build system selects the correct platform.
+There is a single entry point: `projection::play(drawing)` for each platform.  
+Platform-specifics are decided in the implementation files in `platform/*`.  
+In the folder corresponding to each platform, `play.cpp` implements this method.  
+The build system selects the correct implementation.
+
+# Also see
+
+http://projectionist.array.bz/tools
 
 # Acknowledgments
 
