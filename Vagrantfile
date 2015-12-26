@@ -1,37 +1,30 @@
-#!/ruby
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
 Vagrant.configure(2) do |config|
-  config.vm.box = "debian/jessie64"
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
 
-  config.vm.provider "virtualbox" do |vb|
-    # Display the VirtualBox GUI when booting the machine
-    #vb.gui = true
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  config.vm.box = "projectionist/scratch"
+
+  config.vm.provider "vmware_fusion" do |v|
+    # Display the  GUI when booting the machine
+    v.gui = true
 
     # Customize the amount of memory on the VM:
-    #vb.memory = "1024"
+    v.memory = "1024"
+    v.vmx["memsize"] = "1024"
+    v.vmx["numvcpus"] = "2"
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-    sudo apt-get update -q && apt-get upgrade -qy
-
-    install() {
-      sudo apt-get install -qy "$@"
-    }
-
-    # Fix guest additions
-    install dkms # xorg
-    # TODO: add the CDROM or download the latest guest additions and run the
-    #       installer script
-
-    # Install wayland for testing - doesn't work because VirtualBox doesn't
-    # have EGL drivers. See https://www.virtualbox.org/ticket/13471
-    #install weston
-
-    # Install scratch build dependencies
-    install \
-      make gcc g++ pkg-config \
-      libwayland-dev libwayland-egl1-mesa libgles2-mesa-dev
+    /vagrant/platform/weston/install.sh
   SHELL
 end

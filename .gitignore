@@ -10,3 +10,7 @@ bin/*
 
 # ignore OS X attribute files
 .DS_Store
+
+# ignore vagrant files
+.vagrant
+
