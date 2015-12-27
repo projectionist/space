@@ -3,20 +3,34 @@
 set -o errexit
 set -o nounset
 
-sudo apt-get install -y libwayland-client0 libwayland-dev libwayland-egl1 \
-  libwayland-egl1-mesa libegl1-mesa-dev libgles2-mesa-dev libxcursor-dev \
-  libcairo2-dev libxcb-composite0-dev libgbm-dev libxkbcommon-dev \
-  libjpeg62-turbo-dev libpam0g-dev weston
+sudo apt-get install -y git pkg-config automake libwayland-client0 \
+  libwayland-dev libwayland-egl1 libwayland-egl1-mesa libegl1-mesa-dev \
+  libgles2-mesa-dev libxcursor-dev libcairo2-dev libxcb-composite0-dev \
+  libgbm-dev libxkbcommon-dev libjpeg62-turbo-dev libpam0g-dev weston
 
-ln -s /vagrant /home/vagrant/projection
+VAGRANT_USER_HOME=/home/vagrant
+
+#
+# The VM might be provisioned repeatedly.
+# Calling this script should be idempotent.
+# Place operations which should not be repeated after this comment.
+#
+
+if [ -e $VAGRANT_USER_HOME/.projectionist ]; then
+  exit
+fi
+
+touch $VAGRANT_USER_HOME/.projectionist
+
+ln -s /vagrant $VAGRANT_USER_HOME/projection
 
 # start weston-launch on startup
-cat /home/vagrant/projection/platform/weston/bashrc >> /home/vagrant/.bashrc
+cat $VAGRANT_USER_HOME/projection/platform/weston/bashrc >> $VAGRANT_USER_HOME/.bashrc
 sudo mkdir /etc/systemd/system/getty@tty1.service.d
-sudo cp /home/vagrant/projection/platform/weston/autologin.conf /etc/systemd/system/getty@tty1.service.d/autologin.conf
+sudo cp $VAGRANT_USER_HOME/projection/platform/weston/autologin.conf /etc/systemd/system/getty@tty1.service.d/autologin.conf
 
-mkdir -p /home/vagrant/.config
-cp /home/vagrant/projection/platform/weston/weston.ini /home/vagrant/.config/weston.ini
+mkdir -p $VAGRANT_USER_HOME/.config
+cp $VAGRANT_USER_HOME/projection/platform/weston/weston.ini $VAGRANT_USER_HOME/.config/weston.ini
 
 sudo usermod -a -G weston-launch vagrant
 

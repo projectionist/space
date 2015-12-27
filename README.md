@@ -9,6 +9,9 @@ The scratch project is developed to be built on a Debian VM or a Rapsberry PI as
 
 * check out the project by cloning the git repository
 * `cd` in to the project folder
+* run `vagrant up`
+* run `vagrant reload` (**required**: for Projectionist start Weston)
+* run `vagrant ssh`
 * run `make clean`. It is a good idea to run these when switching between different branches of the same repository.
 * run `make`
 * run `bin/main`. you should see a full screen, white trapezium on a black background.

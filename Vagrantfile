@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "projectionist/scratch"
+  config.vm.box = "https://dl.dropboxusercontent.com/u/1279136/projectionist/scratch.box"
 
   config.vm.provider "vmware_fusion" do |v|
     # Display the  GUI when booting the machine
