@@ -1,7 +1,7 @@
 # README
 
-An empty C++ Open GL ES 2.0 scratch project providing drawing context for projections.  
-Visit [http://projectionist.array.bz/projections](http://projectionist.array.bz/projections) for some example projections based on this project.
+This repository is a base for [projections](http://projectionist.array.bz/projections/) which use 3D scenes.
+Visit [http://projectionist.array.bz/projections](http://projectionist.array.bz/projections) for example projections based on this project.
 
 ## Usage
 

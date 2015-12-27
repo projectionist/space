@@ -26,5 +26,6 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     /vagrant/platform/weston/install.sh
+    sudo apt-get install -y libglm-dev
   SHELL
 end

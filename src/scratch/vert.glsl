@@ -1,8 +1,10 @@
-#version 100
+#define M_PI 3.1415926
 
-attribute vec2 a_position;
+attribute vec4 a_position;
+uniform mat4 u_mvp;
 
 void main()
 {
-  gl_Position = vec4(a_position, 0.0, 1.0);
+  gl_Position = u_mvp * a_position;
+  gl_PointSize = 1.0;
 }
