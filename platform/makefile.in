@@ -47,8 +47,14 @@ OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
 
 # automatically rebuilding when a source or any of its dependencies change
 DEPFLAGS=-MT $@ -MD -MP -MF $*.Td
-DEPFILES=$(wildcard src/**/*.d src/*.d) $(wildcard src/**/*.Td src/*.Td)
 POSTCOMPILE=mv -f $*.Td $*.d
+
+DEPFILES:=$(shell find src -type f -name *.d)
+DEPFILES+=$(shell find src -type f -name *.Td)
+DEPFILES+=$(shell find include -type f -name *.d)
+DEPFILES+=$(shell find include -type f -name *.Td)
+DEPFILES+=$(shell find platform -type f -name *.d)
+DEPFILES+=$(shell find platform -type f -name *.Td)
 
 default: $(MAIN)
 .SUFFIXES:
